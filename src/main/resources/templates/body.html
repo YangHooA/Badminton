@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Home Page</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <link rel="icon" type="logo/png" th:href="@{/logo.png}">
+    <link rel="stylesheet" href="/CSS/body.css">
+    <!-- SweetAlert2 CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+</head>
+ <style>
+     /* Đảm bảo các card có chiều cao bằng nhau và khoảng cách đồng đều */
+     .product-row {
+         display: flex;
+         flex-wrap: wrap;
+     }
+
+     /* Không cần ghi đè col-md-4 bằng flex, để Bootstrap tự xử lý */
+     .product-row .col-md-4 {
+         display: flex; /* Giữ flex để card bên trong căn chỉnh chiều cao */
+     }
+
+     .card {
+         display: flex;
+         flex-direction: column;
+         min-height: 350px; /* Chiều cao tối thiểu cho card */
+         border: 1px solid #ddd;
+         width: 100%; /* Đảm bảo card chiếm toàn bộ chiều rộng của col */
+     }
+
+     .card-img-top {
+         height: 250px; /* Chiều cao hình ảnh */
+         object-fit: cover;
+     }
+
+     .card-body {
+         flex-grow: 1;
+         display: flex;
+         flex-direction: column;
+         justify-content: space-between;
+     }
+
+     .card-title {
+         min-height: 48px;
+         overflow: hidden;
+         text-overflow: ellipsis;
+         display: -webkit-box;
+         -webkit-line-clamp: 2;
+         -webkit-box-orient: vertical;
+     }
+
+     .card-text {
+         margin-bottom: 0;
+     }
+ </style>
+<body>
+
+<!-- Nhúng Header -->
+<div th:replace="~{web/header :: header}"></div>
+
+<!-- Slide Ảnh -->
+<div id="carouselExample" class="carousel slide mt-5 pt-5" data-bs-ride="carousel">
+    <!-- Dấu chấm chuyển slide -->
+    <div class="carousel-indicators">
+        <button type="button" data-bs-target="#carouselExample" data-bs-slide-to="0" class="active"></button>
+        <button type="button" data-bs-target="#carouselExample" data-bs-slide-to="1"></button>
+        <button type="button" data-bs-target="#carouselExample" data-bs-slide-to="2"></button>
+    </div>
+
+    <!-- Ảnh slide -->
+    <div class="carousel-inner">
+    <div class="carousel-item active">
+        <img src="/images/slide1.png" class="d-block w-100" alt="Slide 1">
+    </div>
+    <div class="carousel-item">
+        <img src="/images/slide2.png" class="d-block w-100" alt="Slide 2">
+    </div>
+    <div class="carousel-item">
+        <img src="/images/slide3.png" class="d-block w-100" alt="Slide 3">
+    </div>
+    </div>
+
+
+    <!-- Nút chuyển slide -->
+    <button class="carousel-control-prev" type="button" data-bs-target="#carouselExample" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+    </button>
+    <button class="carousel-control-next" type="button" data-bs-target="#carouselExample" data-bs-slide="next">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+    </button>
+</div>
+
+<!-- Phân loại sản phẩm -->
+<div class="container text-center mt-4" id="product-section">
+    <h4 class="fw-bold">Phân loại sản phẩm</h4>
+    <div class="row mt-3 justify-content-center">
+        <div class="col-md-3">
+            <button class="btn-category w-100">
+                <i class="bi bi-star-fill"></i> Sản phẩm Limited
+            </button>
+        </div>
+        <div class="col-md-3">
+            <button class="btn-category w-100">
+                <i class="bi bi-fire"></i> Sản phẩm bán chạy
+            </button>
+        </div>
+        <div class="col-md-3">
+            <button class="btn-category w-100">
+                <i class="bi bi-stars"></i> Sản phẩm mới
+            </button>
+        </div>
+        <div class="col-md-3">
+            <button class="btn-category w-100">
+                <i class="bi bi-tag"></i> Sản phẩm giảm giá
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- bộ lọc và display -->
+<div class="container mt-4" >
+    <div class="row">
+        <div class="col-md-3 bg-light p-3">
+            <h2 class="fw-bold" style="color: #4D9AB4;">Bộ lọc</h2>
+
+            <!-- bộ lọc -->
+            <div class="mb-3">
+                <label class="fw-bold text-orange">Tìm kiếm</label>
+                <div class="input-group">
+                    <input type="text" class="form-control" placeholder="Nhập từ khóa">
+                    <button class="btn btn-orange"><i class="bi bi-search"></i></button>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="fw-bold text-orange" style="color: #4D9AB4;">Lối chơi</label>
+                <div class="form-check">
+                    <input type="checkbox" class="form-check-input" id="toanDien">
+                    <label class="form-check-label" for="toanDien">Công thủ toàn diện</label>
+                </div>
+                <div class="form-check">
+                    <input type="checkbox" class="form-check-input" id="phongThu">
+                    <label class="form-check-label" for="phongThu">Phản tạt phòng thủ</label>
+                </div>
+                <div class="form-check">
+                    <input type="checkbox" class="form-check-input" id="tanCong">
+                    <label class="form-check-label" for="tanCong">Tấn công</label>
+                </div>
+            </div>
+            <hr>
+
+            <h4 class="fw-bold text-orange" style="color: #4D9AB4;">Trình độ chơi</h4>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="color1">
+                <label class="form-check-label" for="color1">Mới chơi</label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="color2">
+                <label class="form-check-label" for="color2">Trung bình</label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="color3">
+                <label class="form-check-label" for="color3">Trung bình khá</label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="color4">
+                <label class="form-check-label" for="color4">Khá tốt</label>
+            </div>
+            <hr>
+
+            <h4 class="fw-bold text-orange" style="color: #4D9AB4;">Loại sản phẩm</h4>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="type1">
+                <label class="form-check-label" for="type1">Vợt cầu lông</label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="type2">
+                <label class="form-check-label" for="type2">Giày cầu lông</label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="type3">
+                <label class="form-check-label" for="type3">Phụ kiện cầu lông</label>
+            </div>
+            <hr>
+
+            <div class="mb-3">
+                <label class="fw-bold text-orange" style="color: #4D9AB4;">Trọng lượng</label>
+                <div class="form-check">
+                    <input type="checkbox" class="form-check-input" id="2F">
+                    <label class="form-check-label" for="2F">2F (68g)</label>
+                </div>
+                <div class="form-check">
+                    <input type="checkbox" class="form-check-input" id="2U">
+                    <label class="form-check-label" for="2U">2U: 90g – 94g</label>
+                </div>
+                <div class="form-check">
+                    <input type="checkbox" class="form-check-input" id="3U">
+                    <label class="form-check-label" for="3U">3U: 85g – 89g</label>
+                </div>
+                <div class="form-check">
+                    <input type="checkbox" class="form-check-input" id="4U">
+                    <label class="form-check-label" for="4U">4U: 80g – 84g</label>
+                </div>
+                <div class="form-check">
+                    <input type="checkbox" class="form-check-input" id="5U">
+                    <label class="form-check-label" for="5U">5U: &lt;80g</label>
+                </div>
+                <div class="form-check">
+                    <input type="checkbox" class="form-check-input" id="6U">
+                    <label class="form-check-label" for="6U">6U</label>
+                </div>
+                <div class="form-check">
+                    <input type="checkbox" class="form-check-input" id="7U">
+                    <label class="form-check-label" for="7U">7U</label>
+                </div>
+            </div>
+
+            <h4 class="fw-bold text-blue" style="color: #4D9AB4;">Mức giá</h4>
+            <div class="price-slider">
+                <div class="slider-track"></div> <!-- Thanh màu xanh -->
+                <input type="range" id="minPrice" class="range-slider" min="0" max="20000000" step="100000" value="0">
+                <input type="range" id="maxPrice" class="range-slider" min="0" max="20000000" step="100000" value="20000000">
+            </div>
+
+            <p class="price-text">Giá: <span id="minValue">0</span> VND - <span id="maxValue">20.000.000</span> VND</p>
+            <button class="btn btn-outline-blue" onclick="resetSlider()">Đặt lại</button>
+            <button class="btn btn-blue">Áp dụng</button>
+
+        </div>
+
+
+        <div class="col-md-9">
+            <h2 class="fw-bold" style="color: #4D9AB4;">Tất cả sản phẩm</h2>
+            <div class="row product-row g-4">
+                <!-- Lặp qua danh sách sản phẩm -->
+                <div class="col-md-4" th:each="product : ${products}">
+                    <a th:href="@{/detail(id=${product.id})}" style="text-decoration: none; color: inherit;">
+                        <div class="card">
+                            <img th:src="${product.imageUrl}" class="card-img-top" alt="Vợt cầu lông">
+                            <div class="card-body">
+                                <h5 class="card-title" th:text="${product.name}">Tên sản phẩm</h5>
+                                <p class="card-text" th:text="${#numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT') + 'đ'}">0đ</p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<!-- Text và video -->
+<main class="container mt-5 pt-5">
+    <div class="container mt-4">
+        <div class="row">
+            <!-- Cột bên trái (4 cột) - Sidebar với video YouTube -->
+            <div class="col-md-4 bg-light p-3">
+                <h3 style="color: #4D9AB4; font-weight: bold;">Đam mê cầu lông cùng chúng tôi</h3>
+                <p style="text-align: justify;">
+                    Với xuất phát từ những người chơi cầu lông và đam mê cầu lông, chúng tôi hiểu được sự cần thiết
+                    của dụng cụ cầu lông chính hãng phục vụ cho người chơi sẽ mang tới những cảm giác thích thú nhất
+                    cho những người đam mê bộ môn này.
+                </p>
+                <p style="text-align: justify;">
+                    Với hệ thống Cửa Hàng cầu lông trên toàn quốc sẽ giúp người chơi có địa điểm uy tín và đa dạng sản phẩm.
+                    Quý Khách có thể yên tâm lựa chọn cho mình những dụng cụ, phụ kiện phù hợp với trình độ và sở thích
+                    của mình để cùng cháy với đam mê Cầu Lông.
+                </p>
+                <h4 style="color: #4D9AB4; font-weight: bold;">Đồng Hành Cùng Đam Mê!</h4>
+            </div>
+
+            <!-- Cột bên phải (8 cột) - Nội dung chính -->
+            <div class="col-md-8 bg-white p-3">
+                <div class="ratio ratio-16x9">
+                    <iframe src="https://www.youtube.com/embed/4lp8qPhkG8E"
+                            title="Video Giới Thiệu"
+                            allowfullscreen>
+                    </iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Form tư vấn -->
+<main class="container mt-5 pt-5">
+<div class="row mt-5">
+    <div class="col-md-12 bg-light p-4 rounded">
+        <h3 class="text-center" style="color: #4D9AB4; font-weight: bold;">Đăng ký tư vấn ngay</h3>
+        <form>
+            <div class="mb-3">
+                <input type="text" class="form-control" placeholder="Nhập họ tên của bạn" required>
+            </div>
+            <div class="mb-3">
+                <input type="tel" class="form-control" placeholder="Nhập số điện thoại của bạn" required>
+            </div>
+            <div class="mb-3">
+                <input type="email" class="form-control" placeholder="Nhập email của bạn" required>
+            </div>
+            <div class="mb-3">
+                <textarea class="form-control" rows="4" placeholder="Nhập nội dung yêu cầu" required></textarea>
+            </div>
+            <div class="text-center">
+                <button type="submit" class="btn" style="background-color: #4D9AB4; color: white;">Gửi đi</button>
+            </div>
+        </form>
+    </div>
+</div>
+</main>
+
+
+<!-- Nhúng Footer -->
+<div th:replace="~{web/footer :: footer}"></div>
+
+<script src="/js/body.js" defer></script>
+</body>
+</html>

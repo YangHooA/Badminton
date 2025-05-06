@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Home Page</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <link rel="icon" type="logo/png" th:href="@{/logo.png}">
+    <link rel="stylesheet" href="/CSS/body.css">
+    <link rel="stylesheet" href="/CSS/detail.css">
+    <!-- SweetAlert2 CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+</head>
+<style>
+    /* Đảm bảo các card có chiều cao bằng nhau và khoảng cách đồng đều */
+    .product-row {
+        display: flex;
+        flex-wrap: wrap;
+    }
+
+    /* Không cần ghi đè col-md-4 bằng flex, để Bootstrap tự xử lý */
+    .product-row .col-md-4 {
+        display: flex; /* Giữ flex để card bên trong căn chỉnh chiều cao */
+    }
+
+    .card {
+        display: flex;
+        flex-direction: column;
+        min-height: 350px; /* Chiều cao tối thiểu cho card */
+        border: 1px solid #ddd;
+        width: 100%; /* Đảm bảo card chiếm toàn bộ chiều rộng của col */
+    }
+
+    .card-img-top {
+        height: 250px; /* Chiều cao hình ảnh */
+        object-fit: cover;
+    }
+
+    .card-body {
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .card-title {
+        min-height: 48px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+    }
+
+    .card-text {
+        margin-bottom: 0;
+    }
+</style>
+<body>
+
+<!-- Nhúng Header -->
+<div th:replace="web/header :: header"></div>
+
+<!-- Slide Ảnh -->
+<div id="carouselExample" class="carousel slide mt-5 pt-5" data-bs-ride="carousel">
+    <!-- Dấu chấm chuyển slide -->
+    <div class="carousel-indicators">
+        <button type="button" data-bs-target="#carouselExample" data-bs-slide-to="0" class="active"></button>
+        <button type="button" data-bs-target="#carouselExample" data-bs-slide-to="1"></button>
+        <button type="button" data-bs-target="#carouselExample" data-bs-slide-to="2"></button>
+    </div>
+
+    <!-- Ảnh slide -->
+    <div class="carousel-inner">
+        <div class="carousel-item active">
+            <img src="/images/slide1.png" class="d-block w-100" alt="Slide 1">
+        </div>
+        <div class="carousel-item">
+            <img src="/images/slide2.png" class="d-block w-100" alt="Slide 2">
+        </div>
+        <div class="carousel-item">
+            <img src="/images/slide3.png" class="d-block w-100" alt="Slide 3">
+        </div>
+    </div>
+
+
+    <!-- Nút chuyển slide -->
+    <button class="carousel-control-prev" type="button" data-bs-target="#carouselExample" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+    </button>
+    <button class="carousel-control-next" type="button" data-bs-target="#carouselExample" data-bs-slide="next">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+    </button>
+</div>
+
+<!-- Phân loại sản phẩm -->
+<div class="container text-center mt-4" id="product-section">
+    <h4 class="fw-bold">Phân loại sản phẩm</h4>
+    <div class="row mt-3 justify-content-center">
+        <div class="col-md-3">
+            <button class="btn-category w-100">
+                <i class="bi bi-star-fill"></i> Sản phẩm Limited
+            </button>
+        </div>
+        <div class="col-md-3">
+            <button class="btn-category w-100">
+                <i class="bi bi-fire"></i> Sản phẩm bán chạy
+            </button>
+        </div>
+        <div class="col-md-3">
+            <button class="btn-category w-100">
+                <i class="bi bi-stars"></i> Sản phẩm mới
+            </button>
+        </div>
+        <div class="col-md-3">
+            <button class="btn-category w-100">
+                <i class="bi bi-tag"></i> Sản phẩm giảm giá
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- bộ lọc và display -->
+<div class="container mt-4" >
+    <div class="row">
+        <div class="col-md-3 bg-light p-3">
+            <h2 class="fw-bold" style="color: #4D9AB4;">Bộ lọc</h2>
+
+            <!-- bộ lọc -->
+            <div class="mb-3">
+                <label class="fw-bold text-orange">Tìm kiếm</label>
+                <div class="input-group">
+                    <input type="text" class="form-control" placeholder="Nhập từ khóa">
+                    <button class="btn btn-orange"><i class="bi bi-search"></i></button>
+                </div>
+            </div>
+            <div class="mb-3">
+                <label class="fw-bold text-orange" style="color: #4D9AB4;">Lối chơi</label>
+                <div class="form-check">
+                    <input type="checkbox" class="form-check-input" id="toanDien">
+                    <label class="form-check-label" for="toanDien">Công thủ toàn diện</label>
+                </div>
+                <div class="form-check">
+                    <input type="checkbox" class="form-check-input" id="phongThu">
+                    <label class="form-check-label" for="phongThu">Phản tạt phòng thủ</label>
+                </div>
+                <div class="form-check">
+                    <input type="checkbox" class="form-check-input" id="tanCong">
+                    <label class="form-check-label" for="tanCong">Tấn công</label>
+                </div>
+            </div>
+            <hr>
+
+            <h4 class="fw-bold text-orange" style="color: #4D9AB4;">Trình độ chơi</h4>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="color1">
+                <label class="form-check-label" for="color1">Mới chơi</label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="color2">
+                <label class="form-check-label" for="color2">Trung bình</label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="color3">
+                <label class="form-check-label" for="color3">Trung bình khá</label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="color4">
+                <label class="form-check-label" for="color4">Khá tốt</label>
+            </div>
+            <hr>
+
+            <h4 class="fw-bold text-orange" style="color: #4D9AB4;">Loại sản phẩm</h4>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="type1">
+                <label class="form-check-label" for="type1">Vợt cầu lông</label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="type2">
+                <label class="form-check-label" for="type2">Giày cầu lông</label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="type3">
+                <label class="form-check-label" for="type3">Phụ kiện cầu lông</label>
+            </div>
+            <hr>
+
+            <div class="mb-3">
+                <label class="fw-bold text-orange" style="color: #4D9AB4;">Trọng lượng</label>
+                <div class="form-check">
+                    <input type="checkbox" class="form-check-input" id="2F">
+                    <label class="form-check-label" for="2F">2F (68g)</label>
+                </div>
+                <div class="form-check">
+                    <input type="checkbox" class="form-check-input" id="2U">
+                    <label class="form-check-label" for="2U">2U: 90g – 94g</label>
+                </div>
+                <div class="form-check">
+                    <input type="checkbox" class="form-check-input" id="3U">
+                    <label class="form-check-label" for="3U">3U: 85g – 89g</label>
+                </div>
+                <div class="form-check">
+                    <input type="checkbox" class="form-check-input" id="4U">
+                    <label class="form-check-label" for="4U">4U: 80g – 84g</label>
+                </div>
+                <div class="form-check">
+                    <input type="checkbox" class="form-check-input" id="5U">
+                    <label class="form-check-label" for="5U">5U: &lt;80g</label>
+                </div>
+                <div class="form-check">
+                    <input type="checkbox" class="form-check-input" id="6U">
+                    <label class="form-check-label" for="6U">6U</label>
+                </div>
+                <div class="form-check">
+                    <input type="checkbox" class="form-check-input" id="7U">
+                    <label class="form-check-label" for="7U">7U</label>
+                </div>
+            </div>
+
+            <h4 class="fw-bold text-blue" style="color: #4D9AB4;">Mức giá</h4>
+            <div class="price-slider">
+                <div class="slider-track"></div> <!-- Thanh màu xanh -->
+                <input type="range" id="minPrice" class="range-slider" min="0" max="20000000" step="100000" value="0">
+                <input type="range" id="maxPrice" class="range-slider" min="0" max="20000000" step="100000" value="20000000">
+            </div>
+
+            <p class="price-text">Giá: <span id="minValue">0</span> VND - <span id="maxValue">20.000.000</span> VND</p>
+            <button class="btn btn-outline-blue" onclick="resetSlider()">Đặt lại</button>
+            <button class="btn btn-blue">Áp dụng</button>
+        </div>
+
+        <div class="col-md-9">
+            <div class="row">
+                <!-- Phần 1: Ảnh sản phẩm -->
+                <div class="col-6">
+                    <!-- Duyệt danh sách ảnh nếu có nhiều -->
+                    <img
+                            src="https://static.fbshop.vn/wp-content/uploads/2024/01/z5421143261601_93bca770bf56ead40a77f2d1774da876-400x533.jpg"
+                            class="img-fluid img-thumbnail"
+                            alt="Ảnh sản phẩm"
+                    >
+                </div>
+
+                <!-- Phần 2: Thông tin thuộc tính sản phẩm -->
+                <div class="col-6">
+                    <h4>Thông tin sản phẩm</h4>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item">
+                            <h2 style="color: #4D9AB4;" th:text="${product.name}">Tên sản phẩm</h2>
+                        </li>
+                        <li style="font-size: 1rem; margin-top: 5px; list-style: none; padding-left: 10px;">
+                            <span style="color: #4D9AB4;">★★★★★</span>
+                            <span style="color: #666;">(4.8/5)</span>
+                            <span style="color: #ccc; margin: 0 8px;">|</span>
+                            <span style="color: #666;">123 lượt mua</span>
+                        </li>
+                        <li class="list-group-item">
+                            <a style="font-size: 1.25rem" th:text="${#numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT') + ' VND'}">Giá</a>
+                        </li>
+                        <!-- Thông tin bổ sung -->
+                        <li class="list-group-item">
+                            <strong>Loại sản phẩm:</strong> <span th:text="${product.typeName}">Loại</span>
+                        </li>
+                        <li class="list-group-item" th:if="${product.playStyleName}">
+                            <strong>Lối chơi:</strong> <span th:text="${product.playStyleName}">Lối chơi</span>
+                        </li>
+                        <li class="list-group-item" th:if="${product.skillLevelName}">
+                            <strong>Trình độ:</strong> <span th:text="${product.skillLevelName}">Trình độ</span>
+                        </li>
+                        <li class="list-group-item" th:if="${product.weightName}">
+                            <strong>Trọng lượng:</strong> <span th:text="${product.weightName}">Trọng lượng</span>
+                        </li>
+                        <!-- Số lượng -->
+                        <div class="mt-3 d-flex align-items-center ms-3">
+                            <span class="me-2">Số lượng:</span>
+                            <div class="d-flex align-items-center justify-content-between"
+                                 style="border: 1px solid #ccc; border-radius: 999px; padding: 4px 10px; width: 110px; cursor: pointer;">
+                                <span onclick="decreaseQty()" style="flex: 1; text-align: center; font-weight: bold;">−</span>
+                                <span id="qtyValue" style="flex: 1; text-align: center;">1</span>
+                                <span onclick="increaseQty()" style="flex: 1; text-align: center; font-weight: bold;">+</span>
+                            </div>
+                        </div>
+                        <!-- Nút thêm vào giỏ + mua ngay -->
+                        <div class="mt-3 ms-3 d-flex gap-2">
+                            <button class="btn add-cart-btn" onclick="addToCart()">🛒 Thêm vào giỏ hàng</button>
+                            <button class="btn buy-now-btn">⚡ Mua ngay</button>
+                        </div>
+                        <!-- Popup thông báo khi thêm vào giỏ -->
+                        <div id="cartPopup" style="display: none; position: fixed; bottom: 20px; right: 20px; background-color: #4D9AB4; color: white; padding: 10px 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.2); z-index: 999;">
+                            ✅ Đã thêm vào giỏ hàng!
+                        </div>
+                    </ul>
+                    <!-- Khung ưu đãi -->
+                    <div class="ms-3 mt-4 p-3" style="border: 1px solid #4D9AB4; border-radius: 12px; max-width: 500px;">
+                        <h5 style="color: #4D9AB4; font-weight: bold;">🎁 Ưu đãi khi mua sản phẩm</h5>
+                        <ul class="list-unstyled" style="font-size: 0.95rem;">
+                            <li class="mb-1"><i class="bi bi-check-circle-fill me-2" style="color: #4D9AB4;"></i>Tặng bao nhung/bao đơn bảo vệ vợt cầu lông</li>
+                            <li class="mb-1"><i class="bi bi-check-circle-fill me-2" style="color: #4D9AB4;"></i>Tặng quấn cán vợt cầu lông</li>
+                            <li class="mb-1"><i class="bi bi-check-circle-fill me-2" style="color: #4D9AB4;"></i>Freeship với đơn hàng trên 1 triệu</li>
+                            <li class="mb-1"><i class="bi bi-check-circle-fill me-2" style="color: #4D9AB4;"></i>Nhận hàng kiểm tra trước, thanh toán sau</li>
+                            <li class="mb-1"><i class="bi bi-check-circle-fill me-2" style="color: #4D9AB4;"></i>Bảo hành vợt 90 ngày lỗi 1 đổi 1 lỗi nhà sản xuất</li>
+                            <li class="mb-1"><i class="bi bi-check-circle-fill me-2" style="color: #4D9AB4;"></i>Cơ hội nhận voucher cho các đơn hàng sau</li>
+                            <li><i class="bi bi-check-circle-fill me-2" style="color: #4D9AB4;"></i>Vô vàn dịch vụ hỗ trợ miễn phí khác</li>
+                        </ul>
+                    </div>
+                </div>
+
+
+                <!-- Khung mô tả và đánh giá -->
+                <div class="row mt-4 ms-2">
+                    <div class="col-md-12">
+                        <!-- Mô tả sản phẩm -->
+                        <div class="p-3 mb-4" style="background-color: #f8fcfd; border: 1px solid #4D9AB4; border-radius: 12px; max-width: 1000px;">
+                            <h5 style="color: #4D9AB4; font-weight: bold;">📝 Mô tả sản phẩm</h5>
+                            <p style="margin-bottom: 0; font-size: 0.95rem; line-height: 1.6;">
+                                Vợt cầu lông Yonex Astrox 100ZZ là dòng vợt cao cấp, phù hợp với người chơi có trình độ nâng cao và chuyên nghiệp. Vợt có thân cứng, đầu nặng, hỗ trợ tối đa sức mạnh cho các cú đập cầu đầy uy lực. Với công nghệ hiện đại của Yonex, người dùng sẽ cảm nhận được độ nảy, độ chuẩn xác và kiểm soát tuyệt vời trong từng pha đánh.
+                            </p>
+                        </div>
+
+                        <!-- Đánh giá người dùng -->
+                        <div class="p-3" style="border: 1px solid #4D9AB4; border-radius: 12px; max-width: 1000px;">
+                            <h5 style="color: #4D9AB4; font-weight: bold;">⭐ Đánh giá từ người dùng</h5>
+
+                            <!-- 1 đánh giá mẫu -->
+                            <div class="mt-2" style="font-size: 0.95rem;">
+                                <div class="d-flex align-items-center mb-1">
+                                    <strong class="me-2">Nguyễn Văn A</strong>
+                                    <span style="color: #ffc107;">★★★★★</span>
+                                </div>
+                                <p style="margin-bottom: 8px;">Vợt đập rất đã tay, cảm giác cầu rõ ràng, shop giao hàng nhanh cực!</p>
+
+                                <div class="d-flex align-items-center mb-1">
+                                    <strong class="me-2">Lê Thị B</strong>
+                                    <span style="color: #ffc107;">★★★★☆</span>
+                                </div>
+                                <p style="margin-bottom: 0;">Sản phẩm tốt, tuy nhiên gói hàng chưa được kỹ lắm. Sẽ ủng hộ lần sau!</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- Sản phẩm tương tự -->
+<div class="container mt-5">
+    <h4 style="color: #0f1b40; font-weight: bold;">Sản phẩm tương tự</h4>
+    <div class="row mt-3">
+
+        <!-- Sản phẩm 1 -->
+        <div class="col-md-3 text-center">
+            <img src="https://static.fbshop.vn/wp-content/uploads/2025/04/DSC06150-400x400.jpg" class="img-fluid rounded mb-2" alt="Vợt 1">
+            <p style="color: #ffc107;">★★★★★ (0)</p>
+            <p class="fw-semibold">Vợt Cầu Lông VS Twister 33 | Cân Bằng Linh Hoạt</p>
+            <p style="color: #4D9AB4; font-weight: bold;">2.950.000đ</p>
+        </div>
+
+        <!-- Sản phẩm 2 -->
+        <div class="col-md-3 text-center">
+            <img src="https://static.fbshop.vn/wp-content/uploads/2025/03/485765551_1192792819514769_5401431562733627627_n-400x533.jpg" class="img-fluid rounded mb-2" alt="Vợt 2">
+            <p style="color: #ffc107;">★★★★☆ (0)</p>
+            <p class="fw-semibold">Vợt Cầu Lông Yonex Astrox 100ZZ Kurenai</p>
+            <p style="color: #4D9AB4; font-weight: bold;">Liên hệ</p>
+        </div>
+
+        <!-- Sản phẩm 3 -->
+        <div class="col-md-3 text-center">
+            <img src="https://static.fbshop.vn/wp-content/uploads/2025/03/0d5cab5dd51e65403c0f-1-400x533.jpg" class="img-fluid rounded mb-2" alt="Vợt 3">
+            <p style="color: #ffc107;">★★★☆☆ (0)</p>
+            <p class="fw-semibold">Vợt cầu lông Lining 3D Calibar 900C | Phiên bản giới hạn</p>
+            <p style="color: #4D9AB4; font-weight: bold;">3.200.000đ</p>
+        </div>
+
+        <!-- Sản phẩm 4 -->
+        <div class="col-md-3 text-center">
+            <img src="https://static.fbshop.vn/wp-content/uploads/2025/03/DSC06081-400x400.jpg" class="img-fluid rounded mb-2" alt="Vợt 4">
+            <p style="color: #ffc107;">★★★★★ (0)</p>
+            <p class="fw-semibold">Vợt cầu lông Victor Auraspeed 100X | Kiểm Soát Cầu Tốt</p>
+            <p style="color: #4D9AB4; font-weight: bold;">3.750.000đ</p>
+        </div>
+
+    </div>
+</div>
+
+
+<!-- Nội dung chính -->
+<main class="container mt-5 pt-5">
+    <div class="container mt-4">
+        <div class="row">
+            <!-- Cột bên trái (4 cột) - Sidebar với video YouTube -->
+            <div class="col-md-4 bg-light p-3">
+                <h3 style="color: #4D9AB4; font-weight: bold;">Đam mê cầu lông cùng chúng tôi</h3>
+                <p style="text-align: justify;">
+                    Với xuất phát từ những người chơi cầu lông và đam mê cầu lông, chúng tôi hiểu được sự cần thiết
+                    của dụng cụ cầu lông chính hãng phục vụ cho người chơi sẽ mang tới những cảm giác thích thú nhất
+                    cho những người đam mê bộ môn này.
+                </p>
+                <p style="text-align: justify;">
+                    Với hệ thống Cửa Hàng cầu lông trên toàn quốc sẽ giúp người chơi có địa điểm uy tín và đa dạng sản phẩm.
+                    Quý Khách có thể yên tâm lựa chọn cho mình những dụng cụ, phụ kiện phù hợp với trình độ và sở thích
+                    của mình để cùng cháy với đam mê Cầu Lông.
+                </p>
+                <h4 style="color: #4D9AB4; font-weight: bold;">Đồng Hành Cùng Đam Mê!</h4>
+            </div>
+
+            <!-- Cột bên phải (8 cột) - Nội dung chính -->
+            <div class="col-md-8 bg-white p-3">
+                <div class="ratio ratio-16x9">
+                    <iframe src="https://www.youtube.com/embed/4lp8qPhkG8E"
+                            title="Video Giới Thiệu"
+                            allowfullscreen>
+                    </iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Form tư vấn -->
+<main class="container mt-5 pt-5">
+    <div class="row mt-5">
+        <div class="col-md-12 bg-light p-4 rounded">
+            <h3 class="text-center" style="color: #4D9AB4; font-weight: bold;">Đăng ký tư vấn ngay</h3>
+            <form>
+                <div class="mb-3">
+                    <input type="text" class="form-control" placeholder="Nhập họ tên của bạn" required>
+                </div>
+                <div class="mb-3">
+                    <input type="tel" class="form-control" placeholder="Nhập số điện thoại của bạn" required>
+                </div>
+                <div class="mb-3">
+                    <input type="email" class="form-control" placeholder="Nhập email của bạn" required>
+                </div>
+                <div class="mb-3">
+                    <textarea class="form-control" rows="4" placeholder="Nhập nội dung yêu cầu" required></textarea>
+                </div>
+                <div class="text-center">
+                    <button type="submit" class="btn" style="background-color: #4D9AB4; color: white;">Gửi đi</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</main>
+
+
+<!-- Nhúng Footer -->
+<div th:replace="web/footer :: footer"></div>
+<script src="/js/body.js" defer></script>
+<script>
+    let quantity = 1;
+
+    function increaseQty() {
+        quantity++;
+        document.getElementById('qtyValue').innerText = quantity;
+    }
+
+    function decreaseQty() {
+        if (quantity > 1) {
+            quantity--;
+            document.getElementById('qtyValue').innerText = quantity;
+        }
+    }
+
+    function addToCart() {
+        const popup = document.getElementById('cartPopup');
+        popup.style.display = 'block';
+
+        setTimeout(() => {
+            popup.style.display = 'none';
+        }, 2000); // Ẩn sau 2 giây
+    }
+</script>
+
+</body>
+</html>

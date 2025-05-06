@@ -1,0 +1,223 @@
+
+.cart-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 45px;
+    height: 45px;
+    background-color: #4D9AB4;
+    color: white;
+    border-radius: 50%;
+    font-size: 20px;
+    text-decoration: none;
+    position: relative;
+}
+.cart-icon:hover {
+    background-color: #3b8192;
+}
+.cart-icon i {
+    font-size: 22px;
+}
+
+.navbar-nav .nav-link {
+    font-size: 18px; /* Tăng kích cỡ chữ */
+    font-weight: bold; /* In đậm */
+    color: #333; /* Màu chữ đậm hơn */
+    text-transform: uppercase; /* Viết hoa toàn bộ */
+}
+.navbar-nav .nav-link:hover {
+    color: #4D9AB4; /* Màu xanh khi hover */
+}
+
+/* Đảm bảo menu hiển thị đúng */
+.mega-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 800px; /* Điều chỉnh kích thước phù hợp */
+    background-color: white;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    padding: 15px;
+    display: none; /* Ẩn ban đầu */
+}
+
+/* Căn chỉnh cột */
+.mega-menu .row {
+    display: flex;
+    justify-content: space-between;
+}
+
+/* Định dạng từng cột */
+.mega-menu .col-md-3 {
+    flex: 1;
+    padding: 10px;
+    min-width: 150px; /* Đảm bảo cột không bị co quá nhỏ */
+}
+
+/* Định dạng tiêu đề */
+.mega-menu h6 {
+    font-size: 16px;
+    font-weight: bold;
+    color: #4D9AB4;
+    margin-bottom: 10px;
+    text-align: left;
+}
+
+/* Định dạng danh sách item */
+.mega-menu .dropdown-item {
+    font-size: 14px;
+    color: #333;
+    padding: 5px 10px;
+    display: block;
+}
+
+.mega-menu .dropdown-item:hover {
+    background-color: #f1f1f1;
+}
+
+/* Hiển thị khi hover */
+.nav-item.dropdown:hover .mega-menu {
+    display: block;
+}
+
+/* Hover nút Đăng nhập bằng Google */
+#google-login-btn:hover {
+    background-color: #4D9AB4 !important;
+    color: white !important;
+    border-color: #4D9AB4 !important;
+}
+
+/* Hover nút Đăng nhập */
+.btn-primary {
+    background-color: #4D9AB4 !important;
+    border-color: #4D9AB4 !important;
+}
+.btn-primary:hover {
+    background-color: #3A7C8C !important;
+    border-color: #3A7C8C !important;
+}
+
+.cart-sidebar {
+    position: fixed;
+    top: 0;
+    right: -400px;
+    width: 400px;
+    height: 100vh;
+    background-color: #fff;
+    box-shadow: -2px 0 10px rgba(0,0,0,0.2);
+    z-index: 1050;
+    transition: right 0.3s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+.cart-sidebar.active {
+    right: 0;
+}
+
+.text-primary {
+    color: #4D9AB4 !important;
+}
+
+.btn-outline-primary {
+    border-color: #4D9AB4;
+    color: #4D9AB4;
+}
+
+.btn-outline-primary:hover {
+    background-color: #4D9AB4;
+    color: #fff;
+}
+
+.btn-primary {
+    background-color: #4D9AB4;
+    border-color: #4D9AB4;
+}
+
+.btn-primary:hover {
+    background-color: #3d8699;
+    border-color: #3d8699;
+}
+
+/* pop up cart */
+.cart-sidebar {
+    position: fixed;
+    top: 0;
+    right: -400px;
+    width: 400px;
+    height: 100vh;
+    background-color: #fff;
+    box-shadow: -2px 0 10px rgba(0,0,0,0.2);
+    z-index: 1050;
+    transition: right 0.3s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+.cart-sidebar.active {
+    right: 0;
+}
+
+.text-primary {
+    color: #4D9AB4 !important;
+}
+
+.btn-outline-primary {
+    border-color: #4D9AB4;
+    color: #4D9AB4;
+}
+
+.btn-outline-primary:hover {
+    background-color: #4D9AB4;
+    color: #fff;
+}
+
+.btn-primary {
+    background-color: #4D9AB4;
+    border-color: #4D9AB4;
+}
+
+.btn-primary:hover {
+    background-color: #3d8699;
+    border-color: #3d8699;
+}
+
+
+/*pop up thanh toán*/
+.bg-orange {
+    background-color: #4D9AB4 !important;
+}
+.btn-orange {
+    background-color: #4D9AB4;
+    color: white;
+    border: none;
+}
+.btn-orange:hover {
+    background-color: #4D9AB4;
+    color: white;
+}
+
+
+/*phương thức thanh toán*/
+ .btn-payment {
+     flex: 1;
+     border: 2px solid #ccc;
+     background-color: white;
+     color: #000;
+     font-weight: 500;
+ }
+
+.btn-payment.active {
+    background-color: #4D9AB4;
+    color: white;
+    border-color: #4D9AB4;
+}
+
+.btn-payment:hover {
+    opacity: 0.9;
+}
+
+
+
+
+

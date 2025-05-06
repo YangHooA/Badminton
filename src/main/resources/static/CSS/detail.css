@@ -1,0 +1,32 @@
+
+.add-cart-btn {
+    border: 1px solid #4D9AB4;
+    color: #4D9AB4;
+    background-color: white;
+    border-radius: 999px;
+    padding: 6px 16px;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+}
+
+.add-cart-btn:hover {
+    background-color: #4D9AB4;
+    color: white;
+    transform: scale(1.05);
+}
+
+.buy-now-btn {
+    background-color: #4D9AB4;
+    color: white;
+    border: none;
+    border-radius: 999px;
+    padding: 6px 16px;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+}
+
+.buy-now-btn:hover {
+    background-color: #3a7d94;
+    transform: scale(1.05);
+}
+

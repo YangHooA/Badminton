@@ -1,0 +1,902 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Quản lý bán thuốc online</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js" defer></script>
+    <link rel="stylesheet" href="" th:href="@{/css/quanly.css}">
+</head>
+<body>
+<!-- Thanh điều hướng (Sidebar) -->
+<div class="sidebar" id="sidebar">
+    <a href="#" class="text-center mb-4">
+        <img src="/logo.png" alt="Logo" class="navbar-brand-img" style="height: 64px">
+        <h4 class="text-white"><span>Admin Panel</span></h4>
+    </a>
+    <a href="#dashboard" class="nav-link active"><i class="fas fa-tachometer-alt"></i> <span>Dashboard</span></a>
+    <a href="#products" class="nav-link"><i class="fas fa-box"></i> <span>Sản phẩm</span></a>
+    <a href="#users" class="nav-link"><i class="fas fa-users"></i> <span>Người dùng</span></a>
+    <a href="#orders" class="nav-link"><i class="fas fa-shopping-cart"></i> <span>Đơn hàng</span></a>
+    <a href="#inventory" class="nav-link"><i class="fas fa-warehouse"></i> <span>Kho</span></a>
+    <a href="#reviews" class="nav-link"><i class="fas fa-star"></i> <span>Đánh giá</span></a>
+    <a href="#logout" class="nav-link mt-5"><i class="fas fa-sign-out-alt"></i> <span>Đăng xuất</span></a>
+</div>
+
+<!-- Nội dung chính -->
+<div class="main-content" id="main-content">
+    <!-- Thanh điều hướng trên (Navbar) -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light mb-4">
+        <div class="container-fluid">
+            <button class="btn btn-outline-secondary me-2" id="toggleSidebar"><i class="fas fa-bars"></i></button>
+            <a class="navbar-brand" href="#">Hong Anh Badminton Store</a>
+            <div class="collapse navbar-collapse">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-user"></i> Admin
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="#">Hồ sơ</a></li>
+                            <li><a class="dropdown-item" href="#">Đăng xuất</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Dashboard -->
+    <div class="container-fluid content-section" id="dashboard">
+        <h2>Dashboard</h2>
+        <div class="row">
+            <div class="col-md-3">
+                <div class="card text-white bg-primary mb-3">
+                    <div class="card-body d-flex align-items-center">
+                        <i class="fas fa-box fa-2x me-3 icon-pulse"></i>
+                        <div>
+                            <h5 class="card-title">Sản phẩm</h5>
+                            <p class="card-text" id="total-products">0</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-white bg-success mb-3">
+                    <div class="card-body d-flex align-items-center">
+                        <i class="fas fa-shopping-cart fa-2x me-3 icon-bounce"></i>
+                        <div>
+                            <h5 class="card-title">Đơn hàng</h5>
+                            <p class="card-text" id="total-orders">0</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-white bg-warning mb-3">
+                    <div class="card-body d-flex align-items-center">
+                        <i class="fas fa-users fa-2x me-3 icon-spin"></i>
+                        <div>
+                            <h5 class="card-title">Người dùng</h5>
+                            <p class="card-text" id="total-users">0</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-white bg-danger mb-3">
+                    <div class="card-body d-flex align-items-center">
+                        <i class="fas fa-star fa-2x me-3 icon-wobble"></i>
+                        <div>
+                            <h5 class="card-title">Đánh giá mới</h5>
+                            <p class="card-text" id="new-reviews">0</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card mb-3">
+                    <div class="card-header">Thống kê đơn hàng</div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="orderChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card mb-3">
+                    <div class="card-header">Thống kê sản phẩm theo danh mục</div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="productChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quản lý sản phẩm -->
+    <div class="container-fluid content-section" id="products" style="display: none;">
+        <h3 class="mt-5">Danh sách sản phẩm</h3>
+        <div class="mb-3">
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addProductModal">Thêm sản phẩm</button>
+            <div class="dropdown d-inline-block">
+                <button class="btn btn-success dropdown-toggle" type="button" id="exportDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                    Xuất dữ liệu
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="exportDropdown">
+                    <li><a class="dropdown-item" href="#" id="exportProductsPDF">Xuất PDF</a></li>
+                    <li><a class="dropdown-item" href="#" id="exportProductsExcel">Xuất Excel</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="filter-box">
+            <div class="row">
+                <div class="col-md-4">
+                    <input type="text" class="form-control" id="search-products" placeholder="Tìm kiếm sản phẩm...">
+                </div>
+                <div class="col-md-4">
+                    <select class="form-select" id="filter-category">
+                        <option value="">Lọc theo danh mục</option>
+                        <!-- Danh mục sẽ được load động -->
+                    </select>
+                </div>
+            </div>
+        </div>
+        <table class="table table-bordered table-hover" id="products-table">
+            <thead class="thead-dark">
+            <tr>
+                <th>ID</th>
+                <th>Tên sản phẩm</th>
+                <th>Giá (VNĐ)</th>
+                <th>Loại sản phẩm</th>
+                <th>Lối chơi </th>
+                <th>Trình độ</th>
+                <th>Trọng lượng</th>
+                <th>Hành động</th>
+            </tr>
+            </thead>
+            <tbody id="products-tbody">
+            <!-- Dữ liệu sẽ được load động -->
+            </tbody>
+        </table>
+
+        <nav aria-label="Page navigation">
+            <ul class="pagination" id="products-pagination">
+                <!-- Phân trang sẽ được load động -->
+            </ul>
+        </nav>
+    </div>
+    <!-- Trong div id="users" -->
+    <div class="container-fluid content-section" id="users" style="display: none;">
+        <h3 class="mt-5">Danh sách người dùng</h3>
+        <div class="mb-3">
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addUserModal">Thêm người dùng</button>
+            <button class="btn btn-success">Xuất PDF</button>
+        </div>
+        <div class="mb-3">
+            <input type="text" class="form-control" id="search-users" placeholder="Tìm kiếm người dùng...">
+        </div>
+        <table class="table table-bordered table-hover" id="customers-table">
+            <thead class="thead-dark">
+            <tr>
+                <th>ID</th>
+                <th>Tên khách hàng</th>
+                <th>Email</th>
+                <th>Số điện thoại</th>
+                <th>Địa chỉ</th>
+                <th>Vai trò</th>
+            </tr>
+            </thead>
+            <tbody>
+            <!-- Dữ liệu sẽ được render ở đây -->
+            <tr th:each="customer : ${customers}">
+                <td th:text="${customer.id}"></td>
+                <td th:text="${customer.name}"></td>
+                <td th:text="${customer.email}"></td>
+                <td th:text="${customer.phone}"></td>
+                <td th:text="${customer.address}"></td>
+                <td th:text="${customer.role}"></td>
+            </tr>
+            </tbody>
+        </table>
+
+
+
+        <nav aria-label="Page navigation">
+            <ul class="pagination" id="users-pagination">
+                <li class="page-item active"><a class="page-link" href="#">1</a></li>
+            </ul>
+        </nav>
+    </div>
+
+
+    <!-- Modal Chi tiết người dùng -->
+    <div class="modal fade" id="userDetailModal" tabindex="-1" aria-labelledby="userDetailModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="userDetailModalLabel">Chi tiết người dùng</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Thông tin người dùng -->
+                    <h6 class="mb-3">Thông tin người dùng</h6>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="detail_user_name" class="form-label fw-bold">Họ và tên</label>
+                            <input type="text" class="form-control" id="detail_user_name" readonly>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="detail_user_email" class="form-label fw-bold">Email</label>
+                            <input type="email" class="form-control" id="detail_user_email" readonly>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="detail_user_phone" class="form-label fw-bold">Số điện thoại</label>
+                            <input type="text" class="form-control" id="detail_user_phone" readonly>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="detail_user_address" class="form-label fw-bold">Địa chỉ</label>
+                            <input type="text" class="form-control" id="detail_user_address" readonly>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="detail_user_dob" class="form-label fw-bold">Ngày sinh</label>
+                            <input type="date" class="form-control" id="detail_user_dob" readonly>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="detail_user_role" class="form-label fw-bold">Vai trò</label>
+                            <input type="text" class="form-control" id="detail_user_role" readonly>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="detail_user_picture" class="form-label fw-bold">Ảnh đại diện</label>
+                        <div class="image-preview" id="detail_user_picture_preview" style="display: none;">
+                            <img id="detail_user_picture" src="" alt="Avatar" style="max-width: 150px; max-height: 150px; border-radius: 5px;">
+                        </div>
+                    </div>
+
+                    <!-- Lịch sử đơn hàng -->
+                    <h6 class="mt-4 mb-3">Lịch sử đơn hàng</h6>
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover" id="user_orders_table">
+                            <thead class="table-light">
+                            <tr>
+                                <th style="width: 10%;">Mã đơn hàng</th>
+                                <th style="width: 15%;">Ngày đặt</th>
+                                <th style="width: 20%;">Tổng tiền (VNĐ)</th>
+                                <th style="width: 15%;">Trạng thái</th>
+                                <th style="width: 30%;">Sản phẩm</th>
+                                <th style="width: 10%;">Hành động</th>
+                            </tr>
+                            </thead>
+                            <tbody id="user_orders_table_body">
+                            <!-- Dữ liệu đơn hàng sẽ được thêm động -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                    <button type="button" class="btn btn-warning" id="editUserBtn">Chỉnh sửa</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quản lý đơn hàng -->
+    <!-- Quản lý đơn hàng -->
+    <!-- Quản lý đơn hàng -->
+    <div class="container-fluid content-section" id="orders" style="display: none;">
+        <h3 class="mt-5">Danh sách đơn hàng</h3>
+        <div class="mb-3">
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addOrderModal">Thêm đơn hàng</button>
+            <button class="btn btn-success" id="exportOrdersPDF">Xuất PDF</button>
+            <button class="btn btn-info" onclick="loadOrders(0, '')">Làm mới</button>
+        </div>
+        <div class="filter-box mb-3">
+            <div class="row">
+                <div class="col-md-4">
+                    <input type="text" class="form-control" id="search-orders" placeholder="Tìm kiếm theo ID hoặc tên khách hàng...">
+                </div>
+                <div class="col-md-4">
+                    <select class="form-select" id="filter-order-status">
+                        <option value="">Tất cả trạng thái</option>
+                        <option value="Pending">Đang chờ</option>
+                        <option value="Completed">Hoàn thành</option>
+                        <option value="Cancelled">Hủy</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover" id="orders-table">
+                <thead class="thead-dark">
+                <tr>
+                    <th>ID</th>
+                    <th>Người dùng</th>
+                    <th>Ngày đặt</th>
+                    <th>Tổng tiền</th>
+                    <th>Trạng thái</th>
+                    <th>Hành động</th>
+                </tr>
+                </thead>
+                <tbody id="orders-tbody">
+                <!-- Dữ liệu sẽ được load động -->
+                </tbody>
+            </table>
+        </div>
+        <nav aria-label="Page navigation">
+            <ul class="pagination" id="orders-pagination">
+                <!-- Phân trang sẽ được load động -->
+            </ul>
+        </nav>
+    </div>
+
+    <!-- Modal Chi tiết đơn hàng -->
+    <div class="modal fade" id="orderDetailModal" tabindex="-1" aria-labelledby="orderDetailModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="orderDetailModalLabel">Chi tiết đơn hàng</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p><strong>ID:</strong> <span id="order-detail-id"></span></p>
+                    <p><strong>Khách hàng:</strong> <span id="order-detail-customer"></span></p>
+                    <p><strong>Ngày đặt:</strong> <span id="order-detail-date"></span></p>
+                    <p><strong>Tổng tiền:</strong> <span id="order-detail-total"></span></p>
+                    <p><strong>Trạng thái:</strong> <span id="order-detail-status"></span></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                </div>
+            </div>
+        </div>
+    </div>    <!-- Quản lý kho -->
+    <div class="container-fluid content-section" id="inventory" style="display: none;">
+        <h3 class="mt-5">Quản lý kho</h3>
+
+        <!-- Thanh công cụ -->
+        <div class="mb-3 d-flex justify-content-between align-items-center">
+            <div>
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addInventoryModal">
+                    <i class="fas fa-plus"></i> Thêm lô hàng mới
+                </button>
+                <button class="btn btn-success" id="exportInventoryPDF">
+                    <i class="fas fa-file-pdf"></i> Xuất PDF
+                </button>
+            </div>
+            <div>
+                <input type="text" class="form-control" id="search-inventory" placeholder="Tìm kiếm theo sản phẩm, số lô, mã kho..." style="width: 300px;">
+            </div>
+        </div>
+
+        <!-- Bộ lọc -->
+        <div class="filter-box mb-3">
+            <div class="row">
+                <div class="col-md-3">
+                    <select class="form-select" id="filter-warehouse">
+                        <option value="">Lọc theo loại sản phẩm </option>
+                        <!-- Danh sách kho load động -->
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Danh sách tồn kho -->
+
+    <div class="container mt-5">
+        <h2 class="text-center">Quản lý Kho</h2>
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover" id="inventory-table">
+                <thead class="thead-dark">
+                <tr>
+                    <th>ID</th>
+                    <th>Sản phẩm</th>
+                    <th>Số lượng</th>
+                    <th>Ngày cập nhật</th>
+                    <th>Hành động</th>
+                </tr>
+                </thead>
+                <tbody id="inventory-tbody">
+                <tr th:each="inventory : ${inventoryList}">
+                    <td th:text="${inventory.productId}"></td>
+                    <td th:text="${inventory.productName}"></td>
+                    <td th:text="${inventory.quantity}"></td>
+                    <td th:text="${inventory.lastUpdated}"></td>
+                    <td>
+                        <button class="btn btn-primary">Sửa</button>
+                    </td>
+                </tr>
+                </tbody>
+
+            </table>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <nav aria-label="Page navigation">
+        <ul class="pagination" id="inventory-pagination">
+            <!-- Phân trang sẽ được load động -->
+        </ul>
+    </nav>
+
+    <!-- Modal Thêm sản phẩm -->
+    <div class="modal fade" id="addProductModal" tabindex="-1" aria-labelledby="addProductModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addProductModalLabel">Thêm sản phẩm mới</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addProductForm">
+                        <h6 class="mt-3">Thông tin cơ bản</h6>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="ten_san_pham" class="form-label">Tên sản phẩm <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="ten_san_pham" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="types_of_product_id" class="form-label">Thương hiệu</label>
+                                <select class="form-select" id="types_of_product_id" name="types_of_product_id">
+                                    <option value="">Chọn thương hiệu</option>
+                                    <option value="1">YONEX</option>
+                                    <option value="2">LINNING</option>
+                                    <option value="3">VICTOR</option>
+                                    <option value="4">MIZUNO</option>
+                                    <option value="5">KIMPOO</option>
+                                    <option value="6">PROACE</option>
+                                    <option value="7">VS</option>
+                                    <option value="8">FELET</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="price" class="form-label">Giá</label>
+                            <textarea class="form-control" id="price" rows="2"></textarea>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="play_style_id" class="form-label">Lối chơi </label>
+                                <select class="form-select" id="play_style_id">
+                                    <option value="">Chọn lối chơi</option>
+                                    <option value="1">Công thủ toàn diện</option>
+                                    <option value="2">Phản tạt phòng thủ</option>
+                                    <option value="3">Tấn công</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="skill_level_id" class="form-label">Trình độ </label>
+                                <select class="form-select" id="skill_level_id">
+                                    <option value="">Chọn trình độ chơi</option>
+                                    <option value="1">Mới chơi</option>
+                                    <option value="2">Trung bình</option>
+                                    <option value="3">Trung bình khá</option>
+                                    <option value="4">Khá tốt</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="weight_id" class="form-label">Cân nặng </label>
+                                <select class="form-select" id="weight_id">
+                                    <option value="">Chọn cân nặng</option>
+                                    <option value="1">2F</option>
+                                    <option value="2">2U</option>
+                                    <option value="3">3U</option>
+                                    <option value="4">4U</option>
+                                    <option value="5">5U</option>
+                                    <option value="6">6U</option>
+                                    <option value="7">7U</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="mo_ta_ngan" class="form-label">Mô tả ngắn</label>
+                            <textarea class="form-control" id="mo_ta_ngan" rows="2"></textarea>
+                        </div>
+
+                        <h6 class="mt-3">Hình ảnh sản phẩm</h6>
+                        <div class="image-input-section mb-4 p-3 border rounded bg-light">
+                            <div class="row align-items-end">
+                                <div class="col-md-5 mb-3">
+                                    <label class="form-label">URL ảnh <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="image-url" placeholder="Nhập URL ảnh">
+                                </div>
+                                <div class="col-md-2 mb-3">
+                                    <label class="form-label">Ảnh chính</label>
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input" id="image-is-main">
+                                        <label class="form-check-label" for="image-is-main">Chọn làm ảnh chính</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-2 mb-3">
+                                    <label class="form-label">Thứ tự</label>
+                                    <input type="number" class="form-control" id="image-order" value="0" min="0">
+                                </div>
+                                <div class="col-md-3 mb-3 text-end">
+                                    <button type="button" class="btn btn-primary" id="add-image"><i class="fas fa-plus"></i> Thêm ảnh</button>
+                                </div>
+                            </div>
+                            <!-- Preview ảnh -->
+                            <div class="image-preview mt-3" id="image-preview" style="display: none;">
+                                <img id="preview-image" src="" alt="Preview" style="max-width: 150px; max-height: 150px; border-radius: 5px;">
+                            </div>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-hover" id="image-table">
+                                <thead class="table-light">
+                                <tr>
+                                    <th style="width: 40%;">URL ảnh</th>
+                                    <th style="width: 15%;">Ảnh chính</th>
+                                    <th style="width: 15%;">Thứ tự</th>
+                                    <th style="width: 15%;">Xem trước</th>
+                                    <th style="width: 15%;">Hành động</th>
+                                </tr>
+                                </thead>
+                                <tbody id="image-table-body">
+                                <!-- Dữ liệu ảnh sẽ được thêm động -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                    <button type="button" class="btn btn-primary" id="saveProductBtn">Lưu</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Chi tiết sản phẩm -->
+    <div class="modal fade" id="productDetailModal" tabindex="-1" aria-labelledby="productDetailModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="productDetailModalLabel">Chi tiết sản phẩm</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="productDetailForm">
+                        <!-- Thông tin cơ bản -->
+                        <h6>Thông tin cơ bản</h6>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="detail_ten_san_pham" class="form-label fw-bold">Tên sản phẩm <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="detail_ten_san_pham" readonly required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="detail_thuong_hieu" class="form-label fw-bold">Thương hiệu</label>
+                                <input type="text" class="form-control" id="detail_thuong_hieu" readonly>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="detail_cong_dung" class="form-label fw-bold">Công dụng</label>
+                                <textarea class="form-control" id="detail_cong_dung" rows="2" readonly></textarea>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="detail_doi_tuong" class="form-label fw-bold">Đối tượng sử dụng</label>
+                                <select class="form-select" id="detail_doi_tuong" disabled>
+                                    <option value="">Chọn đối tượng</option>
+                                    <!-- Danh sách đối tượng sẽ được load động -->
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="detail_danh_muc" class="form-label fw-bold">Danh mục <span class="text-danger">*</span></label>
+                                <select class="form-select" id="detail_danh_muc" disabled required>
+                                    <option value="">Chọn danh mục</option>
+                                    <!-- Danh sách danh mục sẽ được load động -->
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="detail_dang_bao_che" class="form-label fw-bold">Dạng bào chế</label>
+                                <input type="text" class="form-control" id="detail_dang_bao_che" readonly>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="detail_quy_cach" class="form-label fw-bold">Quy cách</label>
+                                <input type="text" class="form-control" id="detail_quy_cach" readonly>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="detail_xuat_xu_thuong_hieu" class="form-label fw-bold">Xuất xứ thương hiệu</label>
+                                <input type="text" class="form-control" id="detail_xuat_xu_thuong_hieu" readonly>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label for="detail_nha_san_xuat" class="form-label fw-bold">Nhà sản xuất</label>
+                                <input type="text" class="form-control" id="detail_nha_san_xuat" readonly>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="detail_nuoc_san_xuat" class="form-label fw-bold">Nước sản xuất</label>
+                                <input type="text" class="form-control" id="detail_nuoc_san_xuat" readonly>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="detail_so_dang_ky" class="form-label fw-bold">Số đăng ký</label>
+                                <input type="text" class="form-control" id="detail_so_dang_ky" readonly>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="detail_thanh_phan" class="form-label fw-bold">Thành phần</label>
+                            <textarea class="form-control" id="detail_thanh_phan" rows="2" readonly></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="detail_mo_ta_ngan" class="form-label fw-bold">Mô tả ngắn</label>
+                            <textarea class="form-control" id="detail_mo_ta_ngan" rows="2" readonly></textarea>
+                        </div>
+
+                        <!-- Hình ảnh sản phẩm -->
+                        <h6>Hình ảnh sản phẩm</h6>
+                        <div class="image-input-section mb-4 p-3 border rounded bg-light">
+                            <div class="row align-items-end">
+                                <div class="col-md-5 mb-3">
+                                    <label class="form-label">URL ảnh</label>
+                                    <input type="text" class="form-control" id="detail_image_url" placeholder="Nhập URL ảnh" disabled>
+                                </div>
+                                <div class="col-md-2 mb-3">
+                                    <label class="form-label">Ảnh chính</label>
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input" id="detail_image_is_main" disabled>
+                                        <label class="form-check-label" for="detail_image_is_main">Chọn làm ảnh chính</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-2 mb-3">
+                                    <label class="form-label">Thứ tự</label>
+                                    <input type="number" class="form-control" id="detail_image_order" value="0" min="0" disabled>
+                                </div>
+                                <div class="col-md-3 mb-3 text-end">
+                                    <button type="button" class="btn btn-primary" id="add_detail_image" disabled><i class="fas fa-plus"></i> Thêm ảnh</button>
+                                </div>
+                            </div>
+                            <div class="image-preview mt-3" id="detail_image_preview" style="display: none;">
+                                <img id="detail_preview_image" src="" alt="Preview" style="max-width: 150px; max-height: 150px; border-radius: 5px;">
+                            </div>
+                        </div>
+                        <div class="table-responsive mb-4">
+                            <table class="table table-bordered table-hover" id="detail_image_table">
+                                <thead class="table-light">
+                                <tr>
+                                    <th style="width: 40%;">URL ảnh</th>
+                                    <th style="width: 15%;">Ảnh chính</th>
+                                    <th style="width: 15%;">Thứ tự</th>
+                                    <th style="width: 20%;">Xem trước</th>
+                                    <th style="width: 10%;">Hành động</th>
+                                </tr>
+                                </thead>
+                                <tbody id="detail_image_table_body">
+                                <!-- Dữ liệu ảnh sẽ được thêm động -->
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Đơn vị tính -->
+                        <h6>Đơn vị tính</h6>
+                        <div class="unit-input-section mb-4 p-3 border rounded bg-light">
+                            <div class="row align-items-end">
+                                <div class="col-md-3 mb-3">
+                                    <label class="form-label">Đơn vị tính</label>
+                                    <select class="form-select" id="detail_unit_name" disabled>
+                                        <option value="">Chọn đơn vị tính</option>
+                                        <!-- Danh sách sẽ được tải động -->
+                                    </select>
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <label class="form-label">Giá (VNĐ)</label>
+                                    <input type="number" class="form-control" id="detail_unit_price" min="0" placeholder="Nhập giá" disabled>
+                                </div>
+                                <div class="col-md-2 mb-3">
+                                    <label class="form-label">Giảm giá (%)</label>
+                                    <input type="number" class="form-control" id="detail_unit_discount" value="0" min="0" max="100" disabled>
+                                </div>
+                                <div class="col-md-2 mb-3">
+                                    <label class="form-label">Ghi chú</label>
+                                    <input type="text" class="form-control" id="detail_unit_note" placeholder="Ghi chú" disabled>
+                                </div>
+                                <div class="col-md-2 mb-3 text-end">
+                                    <button type="button" class="btn btn-primary" id="add_detail_unit" disabled><i class="fas fa-plus"></i> Thêm đơn vị</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="table-responsive mb-4">
+                            <table class="table table-bordered table-hover" id="detail_unit_table">
+                                <thead class="table-light">
+                                <tr>
+                                    <th style="width: 25%;">Đơn vị tính</th>
+                                    <th style="width: 20%;">Giá (VNĐ)</th>
+                                    <th style="width: 20%;">Giảm giá (%)</th>
+                                    <th style="width: 25%;">Ghi chú</th>
+                                    <th style="width: 10%;">Hành động</th>
+                                </tr>
+                                </thead>
+                                <tbody id="detail_unit_table_body">
+                                <!-- Dữ liệu đơn vị tính sẽ được thêm động -->
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Chi tiết sản phẩm -->
+                        <h6>Chi tiết sản phẩm</h6>
+                        <div class="mb-3">
+                            <label for="detail_mota_chi_tiet" class="form-label fw-bold">Mô tả chi tiết</label>
+                            <textarea class="form-control" id="detail_mota_chi_tiet" rows="3" readonly></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="detail_thanhphan_chi_tiet" class="form-label fw-bold">Thành phần chi tiết</label>
+                            <textarea class="form-control" id="detail_thanhphan_chi_tiet" rows="3" readonly></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="detail_cong_dung_chi_tiet" class="form-label fw-bold">Công dụng chi tiết</label>
+                            <textarea class="form-control" id="detail_cong_dung_chi_tiet" rows="3" readonly></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="detail_cach_dung_chi_tiet" class="form-label fw-bold">Cách dùng chi tiết</label>
+                            <textarea class="form-control" id="detail_cach_dung_chi_tiet" rows="3" readonly></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="detail_tac_dung_phu" class="form-label fw-bold">Tác dụng phụ</label>
+                            <textarea class="form-control" id="detail_tac_dung_phu" rows="3" readonly></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="detail_luu_y" class="form-label fw-bold">Lưu ý</label>
+                            <textarea class="form-control" id="detail_luu_y" rows="3" readonly></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="detail_ban_quan" class="form-label fw-bold">Bảo quản</label>
+                            <textarea class="form-control" id="detail_ban_quan" rows="3" readonly></textarea>
+                        </div>
+
+                        <!-- Tình trạng kho -->
+                        <h6>Tình trạng kho</h6>
+                        <div class="table-responsive mb-4">
+                            <table class="table table-bordered table-hover" id="detail_inventory_table">
+                                <thead class="table-light">
+                                <tr>
+                                    <th style="width: 20%;">Kho</th>
+                                    <th style="width: 20%;">Số lô</th>
+                                    <th style="width: 15%;">Số lượng</th>
+                                    <th style="width: 20%;">Ngày sản xuất</th>
+                                    <th style="width: 20%;">Hạn sử dụng</th>
+                                    <th style="width: 15%;">Trạng thái</th>
+                                </tr>
+                                </thead>
+                                <tbody id="detail_inventory_table_body">
+                                <!-- Dữ liệu kho sẽ được thêm động -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                    <button type="button" class="btn btn-warning" id="editProductBtn">Chỉnh sửa</button>
+                    <button type="button" class="btn btn-primary" id="saveProduc" style="display: none;">Lưu thay đổi</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal danh mục sản phẩm-->
+    <div class="modal fade" id="addCategoryModal" tabindex="-1" aria-labelledby="addCategoryModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addCategoryModalLabel">Thêm danh mục mới</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addCategoryForm">
+                        <div class="mb-3">
+                            <label for="category_name" class="form-label">Tên danh mục <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="category_name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="category_note" class="form-label">Ghi chú</label>
+                            <textarea class="form-control" id="category_note" rows="3"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                    <button type="button" class="btn btn-primary">Lưu</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="js/utils.js" ></script>
+<script src="js/sidebar.js" ></script>
+<script type="module" src="js/products.js"></script>
+<script src="js/inventory.js"  ></script>
+<script src="js/customer.js" defer></script>
+<script src="js/order.js" defer></script>
+<script src="js/dashboard.js" defer></script>
+<!--<script>-->
+
+
+<!--$(document).ready(function() {-->
+<!--        // Xử lý sự kiện click nút Chi tiết-->
+<!--        $('#users-tbody').on('click', '.btn-info', function() {-->
+<!--            var userId = $(this).closest('tr').find('td:first').text();-->
+
+<!--            // Gọi API để lấy thông tin người dùng-->
+<!--            $.ajax({-->
+<!--                url: '/api/users/' + userId,-->
+<!--                method: 'GET',-->
+<!--                success: function(user) {-->
+<!--                    $('#detail_user_name').val(user.name);-->
+<!--                    $('#detail_user_email').val(user.email);-->
+<!--                    $('#detail_user_phone').val(user.phone_number);-->
+<!--                    $('#detail_user_address').val(user.address);-->
+<!--                    $('#detail_user_dob').val(user.date_of_birth);-->
+<!--                    $('#detail_user_role').val(user.role);-->
+<!--                    if (user.picture) {-->
+<!--                        $('#detail_user_picture').attr('src', user.picture);-->
+<!--                        $('#detail_user_picture_preview').show();-->
+<!--                    } else {-->
+<!--                        $('#detail_user_picture_preview').hide();-->
+<!--                    }-->
+<!--                }-->
+<!--            });-->
+
+<!--            // Gọi API để lấy danh sách đơn hàng-->
+<!--            $.ajax({-->
+<!--                url: '/api/orders/user/' + userId,-->
+<!--                method: 'GET',-->
+<!--                success: function(orders) {-->
+<!--                    var tbody = $('#user_orders_table_body');-->
+<!--                    tbody.empty();-->
+<!--                    orders.forEach(function(order) {-->
+<!--                        var products = order.items.map(item => item.product_name).join(', ');-->
+<!--                        var row = `-->
+<!--                        <tr>-->
+<!--                            <td>${order.id}</td>-->
+<!--                            <td>${order.order_date}</td>-->
+<!--                            <td>${order.total_price.toLocaleString('vi-VN')}</td>-->
+<!--                            <td>${order.status}</td>-->
+<!--                            <td>${products}</td>-->
+<!--                            <td>-->
+<!--                                <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#orderDetailModal">Xem</button>-->
+<!--                            </td>-->
+<!--                        </tr>`;-->
+<!--                        tbody.append(row);-->
+<!--                    });-->
+<!--                }-->
+<!--            });-->
+<!--        });-->
+<!--    });-->
+<!--</script>-->
+
+
+</body>
+</html>

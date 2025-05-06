@@ -1,0 +1,380 @@
+<header th:fragment="header">
+    <link rel="stylesheet" th:href="@{/CSS/header.css}">
+
+
+    <nav class="navbar navbar-expand-lg bg-body-tertiary fixed-top">
+        <div class="container-fluid" style="background-color: #BAEBFF">
+            <a class="navbar-brand" href="#">
+                <img th:src="@{/logo.png}" alt="Logo" height="80">
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#" th:href="@{/}">Trang Chủ</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#product-section" id="navbarDropdown" role="button">
+                            Sản Phẩm
+                        </a>
+                        <div class="dropdown-menu mega-menu">
+                            <div class="container">
+                                <div class="row">
+                                    <div class="col-md-3"><h6 class="dropdown-item">Vợt Yonex</h6></div>
+                                    <div class="col-md-3"><h6 class="dropdown-item">Vợt Lining</h6></div>
+                                    <div class="col-md-3"><h6 class="dropdown-item">Vợt Victor</h6></div>
+                                    <div class="col-md-3"><h6 class="dropdown-item">Vợt Mizuno</h6></div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-3"><h6 class="dropdown-item">Vợt Kimpoo</h6></div>
+                                    <div class="col-md-3"><h6 class="dropdown-item">Vợt Proace</h6></div>
+                                    <div class="col-md-3"><h6 class="dropdown-item">Vợt VS</h6></div>
+                                    <div class="col-md-3"><h6 class="dropdown-item">Vợt Felet</h6></div>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#repairModal">Sửa Chữa</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#footer">Liên hệ</a>
+                    </li>
+                    <li class="nav-item" id="loginNavItem">
+                        <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#loginModal" id="loginLink">Đăng Nhập</a>
+                    </li>
+                </ul>
+            </div>
+            <!-- Các icon bên phải -->
+            <div class="d-flex align-items-center">
+                <a href="#" class="btn btn-outline-secondary rounded-circle me-2">
+                    <i class="bi bi-search"></i>
+                </a>
+                <a href="#" class="btn btn-outline-secondary rounded-circle me-2">
+                    <i class="bi bi-heart"></i>
+                </a>
+                <!-- Nút giỏ hàng -->
+                <a href="javascript:void(0);" class="cart-icon position-relative" id="openCartSidebar">
+                    <i class="bi bi-cart" style="font-size: 1.5rem;"></i>
+                    <span class="badge bg-danger position-absolute top-0 start-100 translate-middle rounded-circle">1</span>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Modal Đăng Nhập -->
+    <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="loginModalLabel">Đăng Nhập</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <!-- Form đăng nhập -->
+                <div id="loginForm">
+                    <div class="modal-body">
+                        <form>
+                            <div class="mb-3">
+                                <label for="email" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="email" placeholder="Nhập email của bạn">
+                            </div>
+                            <div class="mb-3">
+                                <label for="password" class="form-label">Mật khẩu</label>
+                                <input type="password" class="form-control" id="password" placeholder="Nhập mật khẩu">
+                            </div>
+                            <div class="mb-3 form-check">
+                                <input type="checkbox" class="form-check-input" id="rememberMe">
+                                <label class="form-check-label" for="rememberMe">Ghi nhớ tôi</label>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100">Đăng Nhập</button>
+                        </form>
+                        <hr class="my-3">
+                        <a href="/oauth2/authorization/google" class="btn btn-light btn-login btn-google d-flex align-items-center justify-content-center mt-2">
+                            <i class="bi bi-google me-2"></i> Đăng nhập bằng Google
+                        </a>
+                        <a href="/oauth2/authorization/facebook" class="btn btn-light btn-login btn-facebook d-flex align-items-center justify-content-center mt-2">
+                            <i class="bi bi-facebook me-2"></i> Đăng nhập bằng Facebook
+                        </a>
+                    </div>
+                    <div class="modal-footer">
+                        <p>Bạn chưa có tài khoản?
+                            <button type="button" class="btn btn-link" id="switchToRegister">Đăng ký ngay</button>
+                        </p>
+                    </div>
+                </div>
+                <!-- Form đăng ký (ẩn khi bắt đầu) -->
+                <div id="registerForm" style="display: none;">
+                    <div class="modal-body">
+                        <form>
+                            <div class="mb-3">
+                                <label for="registerEmail" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="registerEmail" placeholder="Nhập email của bạn">
+                            </div>
+                            <div class="mb-3">
+                                <label for="registerPassword" class="form-label">Mật khẩu</label>
+                                <input type="password" class="form-control" id="registerPassword" placeholder="Nhập mật khẩu">
+                            </div>
+                            <div class="mb-3">
+                                <label for="confirmPassword" class="form-label">Xác nhận mật khẩu</label>
+                                <input type="password" class="form-control" id="confirmPassword" placeholder="Xác nhận mật khẩu">
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100">Đăng Ký</button>
+                        </form>
+                        <hr class="my-3">
+                        <button class="btn btn-light w-100 d-flex align-items-center justify-content-center" id="google-register-btn">
+                            <i class="bi bi-google me-2"></i>
+                            Đăng ký bằng Google
+                        </button>
+                    </div>
+                    <div class="modal-footer">
+                        <p>Đã có tài khoản? <a href="javascript:void(0);" id="switchToLogin">Đăng nhập ngay</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Liên hệ sửa chữa -->
+    <div class="modal fade" id="repairModal" tabindex="-1" aria-labelledby="repairModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="repairModalLabel">Liên Hệ Sửa Chữa</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="repairForm">
+                        <div class="row">
+                            <div class="mb-3 col-md-6">
+                                <label class="form-label">Tên của bạn?</label>
+                                <input type="text" class="form-control" name="name">
+                            </div>
+                            <div class="mb-3 col-md-6">
+                                <label class="form-label">Số điện thoại (Bắt buộc)</label>
+                                <input type="tel" class="form-control" name="phone" required>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="mb-3 col-md-6">
+                                <label class="form-label">Email</label>
+                                <input type="email" class="form-control" name="email">
+                            </div>
+                            <div class="mb-3 col-md-6">
+                                <label class="form-label">Địa chỉ</label>
+                                <input type="text" class="form-control" name="address">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Mô tả</label>
+                            <textarea class="form-control" rows="2" name="description"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Hình ảnh</label>
+                            <input type="file" class="form-control" name="image">
+                        </div>
+                        <div class="text-center">
+                            <button type="submit" class="btn" style="background-color: #4D9AB4; color: white;">Liên Hệ Sửa Chữa</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal giỏ hàng -->
+    <div id="cartSidebar" class="cart-sidebar">
+        <div class="cart-header d-flex justify-content-between align-items-center p-3 border-bottom">
+            <h5 class="m-0 fw-bold text-primary">Giỏ hàng</h5>
+            <button class="btn-close" id="closeCartSidebar" aria-label="Close"></button>
+        </div>
+        <div class="cart-body p-3">
+            <!-- Sản phẩm trong giỏ -->
+            <div class="cart-item d-flex align-items-center mb-3" data-price="2400000">
+                <img src="https://static.fbshop.vn/wp-content/uploads/2025/03/0d5cab5dd51e65403c0f-1-400x533.jpg" alt="Vợt" class="me-3 rounded border" width="150">
+                <div class="flex-grow-1">
+                    <div class="fw-bold">Vợt cầu lông Yonex Nanoflare 700</div>
+                    <div class="text-muted small">Tour | Điều cầu chính xác</div>
+                    <div class="d-flex align-items-center mt-2">
+                        <button class="btn btn-outline-secondary btn-sm me-1 btn-minus">−</button>
+                        <span class="px-2 quantity">1</span>
+                        <button class="btn btn-outline-secondary btn-sm ms-1 btn-plus">+</button>
+                    </div>
+                </div>
+                <div class="text-end ms-2 fw-bold text-danger item-total">2.400.000đ</div>
+            </div>
+            <hr>
+            <div class="d-flex justify-content-between fw-bold">
+                <span>Tổng cộng</span>
+                <span class="text-danger" id="grandTotal">2.400.000đ</span>
+            </div>
+        </div>
+        <div class="cart-footer p-3 border-top">
+            <button class="btn btn-outline-primary w-100 mb-2" data-bs-toggle="modal" data-bs-target="#cartModal">
+                Xem giỏ hàng
+            </button>
+            <button class="btn btn-primary w-100">Đặt mua</button>
+        </div>
+    </div>
+
+    <!-- Modal hiển thị giỏ hàng -->
+    <div class="modal fade" id="cartModal" tabindex="-1" aria-labelledby="cartModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+            <div class="modal-content rounded-4 shadow">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="cartModalLabel">Giỏ hàng</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <!-- Bên trái: Danh sách sản phẩm -->
+                        <div class="col-md-8">
+                            <div class="cart-item d-flex align-items-center mb-3" data-price="2400000">
+                                <img src="https://static.fbshop.vn/wp-content/uploads/2025/03/0d5cab5dd51e65403c0f-1-400x533.jpg" class="me-3 rounded border" width="150" />
+                                <div class="flex-grow-1">
+                                    <div class="fw-bold">Vợt cầu lông Yonex Nanoflare 700 Tour</div>
+                                    <div class="text-muted small">Chọn: Công ty | Xám</div>
+                                    <div class="d-flex align-items-center mt-2">
+                                        <button class="btn btn-outline-secondary btn-sm me-1 btn-minus">−</button>
+                                        <span class="px-2 quantity">1</span>
+                                        <button class="btn btn-outline-secondary btn-sm ms-1 btn-plus">+</button>
+                                    </div>
+                                </div>
+                                <div class="text-end ms-2 fw-bold text-danger item-total">2.400.000đ</div>
+                            </div>
+                            <button class="btn btn-warning mt-3">
+                                🔄 Cập nhật giỏ hàng
+                            </button>
+                        </div>
+                        <!-- Bên phải: Tóm tắt đơn -->
+                        <div class="col-md-4 bg-dark text-white p-4 rounded-4">
+                            <h5 class="mb-4">Tóm tắt đơn hàng</h5>
+                            <div class="d-flex justify-content-between">
+                                <span>Thành tiền</span>
+                                <span id="subtotal">2.400.000đ</span>
+                            </div>
+                            <div class="d-flex justify-content-between mt-2">
+                                <span>Vận chuyển</span>
+                                <span class="text-muted">Liên hệ phí sau</span>
+                            </div>
+                            <div class="my-3">
+                                <input type="text" class="form-control" placeholder="Mã giảm giá" />
+                                <button class="btn btn-orange mt-2 w-100">Sử dụng</button>
+                            </div>
+                            <div class="d-flex justify-content-between fw-bold mt-3 fs-5">
+                                <span>Tổng cộng</span>
+                                <span id="grandTotalView">2.400.000đ</span>
+                            </div>
+                            <div class="d-grid mt-4">
+                                <button class="btn btn-light mb-2">🛍 Mua thêm</button>
+                                <button class="btn btn-orange" data-bs-toggle="modal" data-bs-target="#checkoutModal">🧾 Thanh toán</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Thanh toán -->
+    <div class="modal fade" id="checkoutModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+            <div class="modal-content rounded-4 shadow">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold">Thanh toán</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <!-- Form bên trái -->
+                        <div class="col-md-8">
+                            <h5 class="mb-4">Địa chỉ giao hàng</h5>
+                            <form>
+                                <div class="row mb-3">
+                                    <div class="col">
+                                        <label class="form-label">Tên *</label>
+                                        <input type="text" class="form-control" placeholder="Nhập tên của bạn" required>
+                                    </div>
+                                    <div class="col">
+                                        <label class="form-label">Họ *</label>
+                                        <input type="text" class="form-control" placeholder="Nhập họ của bạn" required>
+                                    </div>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col">
+                                        <label class="form-label">Email *</label>
+                                        <input type="email" class="form-control" placeholder="Nhập Email" required>
+                                    </div>
+                                    <div class="col">
+                                        <label class="form-label">Số điện thoại *</label>
+                                        <input type="tel" class="form-control" placeholder="Nhập số điện thoại" required>
+                                    </div>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col">
+                                        <label class="form-label">Tỉnh / Thành phố *</label>
+                                        <select class="form-select" id="provinceSelect" required>
+                                            <option value="">Chọn tỉnh/thành</option>
+                                        </select>
+                                    </div>
+                                    <div class="col">
+                                        <label class="form-label">Quận / Huyện *</label>
+                                        <select class="form-select" id="districtSelect" required disabled>
+                                            <option value="">Chọn quận/huyện</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Tên đường, số nhà cụ thể *</label>
+                                    <input type="text" class="form-control" placeholder="House number and street name" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Ghi chú</label>
+                                    <textarea class="form-control" placeholder="Notes about your order, e.g. special notes for delivery" rows="3"></textarea>
+                                </div>
+                            </form>
+                            <p class="mt-3 text-muted">Bạn chưa có tài khoản? <a href="javascript:void(0);" id="toRegisterFromLogin" class="text-danger fw-bold">Tạo ngay</a></p>
+                        </div>
+                        <!-- Tóm tắt đơn hàng bên phải -->
+                        <div class="col-md-4 bg-dark text-white p-4 rounded-4">
+                            <h5 class="mb-4">Đơn hàng của bạn</h5>
+                            <div class="d-flex justify-content-between">
+                                <span>Sản phẩm <span class="badge bg-orange rounded-pill">1</span></span>
+                            </div>
+                            <hr class="bg-light">
+                            <div class="mb-3">
+                                <div class="fw-bold">Vợt cầu lông Yonex Nanoflare 700 Tour</div>
+                                <div class="text-white-50 small">1 x 2.400.000đ</div>
+                                <div class="text-white-50 small">Chọn: Phiên bản: Công ty</div>
+                            <div class="text-white-50 small">Chọn: Màu sắc: Xám</div>
+                        </div>
+                        <hr class="bg-light">
+                        <div class="d-flex justify-content-between fw-bold fs-5">
+                            <span>Total</span>
+                            <span class="text-warning">2.400.000đ</span>
+                        </div>
+                        <div class="d-grid mt-4">
+                            <div class="d-grid mt-4 mb-3">
+                                <button class="btn btn-orange">
+                                    🛒 Đặt hàng
+                                </button>
+                            </div>
+                            <div class="text-white">
+                                <label class="form-label fw-bold mb-2">Phương thức thanh toán:</label>
+                                <div class="d-flex gap-2">
+                                    <button id="btnCOD" class="btn btn-payment active">COD (Khi nhận hàng)</button>
+                                    <button id="btnOnline" class="btn btn-payment">Online (Chuyển khoản QR)</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <script src="/js/header.js" defer></script>
+</header>

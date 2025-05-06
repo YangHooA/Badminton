@@ -1,0 +1,122 @@
+/*slide*/
+.carousel-item img {
+    height: 350px;
+    object-fit: cover;
+}
+
+/*button hover*/
+.btn-category {
+    background-color: #f8f9fa; /* Màu nền mặc định */
+    border: 1px solid #ccc; /* Viền nhẹ */
+    color: #333; /* Màu chữ */
+    padding: 10px 20px;
+    border-radius: 50px; /* Bo góc */
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.btn-category:hover,
+.btn-category:focus {
+    background-color: #4D9AB4; /* Đổi màu khi hover */
+    color: white;
+}
+
+.slider-container {
+    width: 300px;
+    margin: 50px auto;
+    text-align: center;
+}
+
+.range-slider {
+    position: relative;
+    width: 100%;
+    height: 5px;
+    background: #ccc;
+    border-radius: 5px;
+}
+
+input[type="range"] {
+    position: absolute;
+    width: 100%;
+    -webkit-appearance: none;
+    background: none;
+    pointer-events: none;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 20px;
+    height: 20px;
+    background: #4D9AB4;
+    border-radius: 50%;
+    cursor: pointer;
+    pointer-events: auto;
+}
+
+.price-text {
+    margin-top: 15px; /* Tạo khoảng cách giữa slider và dòng giá */
+    display: block;
+}
+
+.range-line {
+    position: absolute;
+    height: 8px;
+    background: #4D9AB4; /* Màu xanh phần được chọn */
+    border-radius: 5px;
+}
+.slider-container {
+    position: relative;
+    width: 100%;
+    height: 8px;
+    background: #ccc; /* Màu xám ngoài khoảng giá */
+    border-radius: 5px;
+}
+
+.price-slider {
+    position: relative;
+    width: 100%;
+    height: 8px;
+    background: #ccc; /* Màu xám mặc định */
+    border-radius: 4px;
+}
+
+.slider-track {
+    position: absolute;
+    height: 8px;
+    background: #4D9AB4; /* Màu xanh */
+    border-radius: 4px;
+    top: 0;
+}
+
+/*button Đặt lại - Áp dụng */
+.btn-outline-blue, .btn-blue {
+    padding: 8px 16px;
+    border: 2px solid #4D9AB4; /* Khung màu xanh */
+    border-radius: 5px;
+    background: transparent;
+    color: #4D9AB4;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-outline-blue:hover, .btn-blue:hover  {
+    background: #4D9AB4;
+    color: white;
+}
+
+.btn-outline-blue:hover, .btn-blue:hover {
+    background: #4D9AB4;
+    color: white;
+}
+
+
+
+
+
+
+
+
+
+
+
+
