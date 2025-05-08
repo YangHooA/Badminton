@@ -2,16 +2,16 @@ package com.example.Badminton.securityconfig;
 
 import com.example.Badminton.entity.Customer;
 import com.example.Badminton.service.CustomerService;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Optional;
@@ -46,7 +46,6 @@ public class JwtAuthenticationFilter implements jakarta.servlet.Filter {
 
         try {
             String header = httpRequest.getHeader("Authorization");
-            System.out.println("Authorization header: " + header);
             if (header != null && header.startsWith("Bearer ")) {
                 String token = header.substring(7);
                 System.out.println("Extracted token: " + token);
@@ -63,12 +62,14 @@ public class JwtAuthenticationFilter implements jakarta.servlet.Filter {
                         System.out.println("Authentication set for user: " + email);
                     } else {
                         System.out.println("User not found for email: " + email);
+                        httpResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED, "User not found");
+                        return;
                     }
                 } else {
                     System.out.println("Invalid token or email");
+                    httpResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid token");
+                    return;
                 }
-            } else {
-                System.out.println("No Bearer token found in header");
             }
             chain.doFilter(request, response);
         } catch (Exception e) {

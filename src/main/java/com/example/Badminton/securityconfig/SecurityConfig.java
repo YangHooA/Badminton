@@ -7,7 +7,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
@@ -16,9 +15,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import jakarta.servlet.http.Cookie;
-
 import java.net.URLEncoder;
-import java.util.Collections;
 
 @Configuration
 @EnableWebSecurity
@@ -38,7 +35,7 @@ public class SecurityConfig {
                                 "/static/**",
                                 "/CSS/**",
                                 "/js/**",
-                                "/images/**", // Sửa từ /image/** thành /images/**
+                                "/images/**",
                                 "/logo.png",
                                 "/logonewT.png",
                                 "/",
@@ -68,8 +65,10 @@ public class SecurityConfig {
                                 "/login/oauth2/code/google",
                                 "/login/oauth2/code/facebook",
                                 "/error",
-                                "/detail"
+                                "/detail",
+                                "/api/cart/check-stock" // Chỉ cho phép check-stock công khai
                         ).permitAll()
+                        .requestMatchers("/api/cart/add").authenticated() // Yêu cầu xác thực cho /api/cart/add
                         .requestMatchers("/thanhtoan/payos").authenticated()
                         .requestMatchers("/quanly/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
@@ -85,7 +84,8 @@ public class SecurityConfig {
                                 "/thanhtoan/payos/webhook",
                                 "/submit-review",
                                 "/get-reviews",
-                                "/check-auth"
+                                "/check-auth",
+                                "/detail"
                         )
                 )
                 .oauth2Login(oauth2 -> oauth2
@@ -93,7 +93,6 @@ public class SecurityConfig {
                                 .userService(oAuth2UserService())
                         )
                         .successHandler((request, response, authentication) -> {
-                            // Giữ nguyên logic hiện tại
                             try {
                                 OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
                                 String provider = request.getRequestURI().contains("google") ? "google" : "facebook";
@@ -111,7 +110,7 @@ public class SecurityConfig {
                                 String jwtToken = jwtUtil.generateToken(customer);
 
                                 Cookie jwtCookie = new Cookie("jwtToken", jwtToken);
-                                jwtCookie.setHttpOnly(true);
+                                jwtCookie.setHttpOnly(false);
                                 jwtCookie.setSecure(false); // Tắt Secure cho localhost
                                 jwtCookie.setPath("/");
                                 jwtCookie.setMaxAge(10 * 60 * 60);

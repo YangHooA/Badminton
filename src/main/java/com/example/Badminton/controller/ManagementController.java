@@ -8,6 +8,8 @@ import com.example.Badminton.service.CustomerService;
 import com.example.Badminton.service.InventoryService;
 import com.example.Badminton.service.OrderService;
 import com.example.Badminton.service.ProductService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -24,11 +26,14 @@ import java.util.List;
 @Controller
 public class ManagementController {
 
+    private static final Logger logger = LoggerFactory.getLogger(ManagementController.class);
+
     @Autowired
     private CustomerService customerService;
 
     @Autowired
     private InventoryService inventoryService;
+
 
     @Autowired
     private OrderService orderService;
@@ -36,15 +41,13 @@ public class ManagementController {
     @Autowired
     private ProductService productService;
 
-    // Trang hiển thị quản lý tổng hợp (khách hàng, kho, đơn hàng)
     @GetMapping("/quanly")
     public String showManagementPage(Model model) {
         model.addAttribute("customers", customerService.getAllCustomers());
         model.addAttribute("inventoryList", inventoryService.getAllInventory());
-        return "quanly"; // Trả về trang quanly.html
+        return "quanly";
     }
 
-    // Trang hiển thị danh sách đơn hàng
     @GetMapping("/quanly/donhang")
     public String showOrderList(@RequestParam(defaultValue = "0") int page,
                                 @RequestParam(defaultValue = "10") int size,
@@ -59,36 +62,44 @@ public class ManagementController {
             model.addAttribute("totalPages", orderPage.getTotalPages());
             model.addAttribute("status", status);
             model.addAttribute("keyword", keyword);
-            return "quanly"; // Trả về trang quanly.html
+            return "quanly";
         } catch (Exception e) {
+            logger.error("Error loading order list: {}", e.getMessage(), e);
             model.addAttribute("error", "Lỗi khi tải danh sách đơn hàng: " + e.getMessage());
             return "quanly";
         }
     }
 
-    // Trang hiển thị chi tiết sản phẩm
     @GetMapping("/detail")
     public String getProductDetail(@RequestParam("id") Integer id, Model model) {
-        ProductDTO product = productService.getProductById(id);
-        model.addAttribute("product", product);
-        return "detail"; // Trả về trang detail.html
+        try {
+            ProductDTO product = productService.getProductById(id);
+            if (product == null) {
+                logger.warn("Product with ID {} not found", id);
+                model.addAttribute("error", "Sản phẩm không tồn tại!");
+                return "error";
+            }
+            model.addAttribute("product", product);
+            return "detail";
+        } catch (Exception e) {
+            logger.error("Error loading product detail for ID {}: {}", id, e.getMessage(), e);
+            model.addAttribute("error", "Lỗi khi tải chi tiết sản phẩm: " + e.getMessage());
+            return "error";
+        }
     }
 
-    // API trả về danh sách khách hàng
     @GetMapping("/api/customers")
     @ResponseBody
     public List<CustomerDTO> getAllCustomers() {
         return customerService.getAllCustomers();
     }
 
-    // API trả về danh sách kho
     @GetMapping("/api/inventory")
     @ResponseBody
     public List<InventoryDTO> getAllInventory() {
         return inventoryService.getAllInventory();
     }
 
-    // API trả về danh sách sản phẩm
     @GetMapping("/api/products")
     @ResponseBody
     public ResponseEntity<List<ProductDTO>> getAllProducts() {
@@ -96,14 +107,12 @@ public class ManagementController {
         return ResponseEntity.ok(products);
     }
 
-    // API trả về danh sách đơn hàng
     @GetMapping("/api/orders")
     @ResponseBody
     public List<OrderDTO> getAllOrders() {
         return orderService.getAllOrders();
     }
 
-    // API trả về danh sách đơn hàng phân trang
     @GetMapping("/api/orders/paged")
     @ResponseBody
     public ResponseEntity<?> getPagedOrders(@RequestParam(defaultValue = "0") int page,
@@ -115,19 +124,18 @@ public class ManagementController {
             Page<OrderDTO> orderPage = orderService.getOrdersByStatus(status, keyword, pageable);
             return ResponseEntity.ok(orderPage);
         } catch (Exception e) {
+            logger.error("Error loading paged orders: {}", e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Collections.singletonMap("message", "Lỗi khi tải danh sách đơn hàng: " + e.getMessage()));
         }
     }
 
-    // API lấy chi tiết đơn hàng
     @GetMapping("/api/orders/{id}")
     @ResponseBody
     public OrderDTO getOrderById(@PathVariable Long id) {
         return orderService.getOrderById(id);
     }
 
-    // API xóa đơn hàng
     @DeleteMapping("/api/orders/{id}")
     @ResponseBody
     public void deleteOrder(@PathVariable Long id) {

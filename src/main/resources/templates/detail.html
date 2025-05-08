@@ -61,8 +61,7 @@
 <body>
 
 <!-- Nhúng Header -->
-<div th:replace="web/header :: header"></div>
-
+<div th:replace="~{web/header :: header}"></div>
 <!-- Slide Ảnh -->
 <div id="carouselExample" class="carousel slide mt-5 pt-5" data-bs-ride="carousel">
     <!-- Dấu chấm chuyển slide -->
@@ -283,9 +282,12 @@
                             </div>
                         </div>
                         <!-- Nút thêm vào giỏ + mua ngay -->
+                        <!-- Trong phần thông tin sản phẩm -->
                         <div class="mt-3 ms-3 d-flex gap-2">
-                            <button class="btn add-cart-btn" onclick="addToCart()">🛒 Thêm vào giỏ hàng</button>
-                            <button class="btn buy-now-btn">⚡ Mua ngay</button>
+                            <button class="btn add-cart-btn"
+                                    th:if="${product.id != null}"
+                                    th:attr="data-product-id=${product.id},data-product-name=${product.name},data-product-price=${product.price}"
+                                    onclick="addToCart(this)">🛒 Thêm vào giỏ hàng</button>
                         </div>
                         <!-- Popup thông báo khi thêm vào giỏ -->
                         <div id="cartPopup" style="display: none; position: fixed; bottom: 20px; right: 20px; background-color: #4D9AB4; color: white; padding: 10px 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.2); z-index: 999;">
@@ -449,7 +451,7 @@
 
 
 <!-- Nhúng Footer -->
-<div th:replace="web/footer :: footer"></div>
+<div th:replace="~{web/footer :: footer}"></div>
 <script src="/js/body.js" defer></script>
 <script>
     let quantity = 1;
@@ -466,15 +468,217 @@
         }
     }
 
-    function addToCart() {
-        const popup = document.getElementById('cartPopup');
-        popup.style.display = 'block';
+    function updateCartCount() {
+        const cart = JSON.parse(sessionStorage.getItem('guest_cart')) || [];
+        const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+        const cartCountElement = document.getElementById('cart-count');
+        if (cartCountElement) {
+            cartCountElement.innerText = totalItems;
+        }
+    }
 
-        setTimeout(() => {
-            popup.style.display = 'none';
-        }, 2000); // Ẩn sau 2 giây
+    function addToCart(button) {
+        const productId = parseInt(button.getAttribute('data-product-id'));
+        const productName = button.getAttribute('data-product-name');
+        const productPrice = parseFloat(button.getAttribute('data-product-price'));
+        const qtyElement = document.getElementById('qtyValue');
+        const quantity = qtyElement ? parseInt(qtyElement.innerText) : null;
+
+        console.log('productId:', productId, 'type:', typeof productId);
+        console.log('productName:', productName);
+        console.log('productPrice:', productPrice);
+        console.log('quantity:', quantity);
+
+        if (!productId || isNaN(productId)) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Lỗi!',
+                text: `ID sản phẩm không hợp lệ: ${productId}`,
+                showConfirmButton: true
+            });
+            return;
+        }
+
+        if (!qtyElement || !quantity || isNaN(quantity) || quantity < 1) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Lỗi!',
+                text: 'Số lượng không hợp lệ hoặc không được tìm thấy!',
+                showConfirmButton: true
+            });
+            return;
+        }
+
+        fetch('/check-auth', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            credentials: 'include'
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(authData => {
+                console.log('check-auth response:', authData);
+                if (authData.authenticated && authData.user && authData.user.email && authData.token) {
+                    handleLoggedInUser(authData.user.email, productId, productName, productPrice, quantity, authData.token);
+                } else {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Chưa đăng nhập',
+                        text: 'Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng!',
+                        showConfirmButton: true,
+                        confirmButtonText: 'Đăng nhập',
+                        willClose: () => {
+                            window.location.href = '/login';
+                        }
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error in check-auth:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi!',
+                    text: `Không thể kiểm tra trạng thái đăng nhập: ${error.message}`,
+                    showConfirmButton: true
+                });
+            });
+    }
+
+    function handleLoggedInUser(email, productId, productName, productPrice, quantity, token) {
+        console.log('Sending request to /api/cart/add with token:', token);
+        fetch('/api/cart/add', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                productId: parseInt(productId),
+                quantity: quantity,
+                email: email
+            })
+        })
+            .then(response => {
+                console.log('Response status:', response.status);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Response data:', data);
+                if (data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Thành công!',
+                        text: `Đã thêm ${productName} vào giỏ hàng!`,
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Lỗi!',
+                        text: data.message || 'Không thể thêm vào giỏ hàng!',
+                        showConfirmButton: true
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error in handleLoggedInUser:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi!',
+                    text: `Không thể thêm vào giỏ hàng: ${error.message}`,
+                    showConfirmButton: true
+                });
+            });
+    }
+
+    function handleGuestUser(productId, productName, productPrice, quantity) {
+        fetch('/api/cart/check-stock', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ productId: parseInt(productId), quantity: quantity })
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    throw new Error('Phản hồi không phải JSON');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    let cart = JSON.parse(sessionStorage.getItem('guest_cart')) || [];
+                    const existingItem = cart.find(item => item.productId === productId);
+                    if (existingItem) {
+                        existingItem.quantity += quantity;
+                    } else {
+                        cart.push({
+                            productId: productId,
+                            productName: productName,
+                            productPrice: productPrice,
+                            quantity: quantity
+                        });
+                    }
+                    sessionStorage.setItem('guest_cart', JSON.stringify(cart));
+                    updateCartCount();
+
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Thành công!',
+                        text: `Đã thêm ${productName} vào giỏ hàng!`,
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Lỗi!',
+                        text: data.message || 'Sản phẩm không đủ hàng!',
+                        showConfirmButton: true
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error in handleGuestUser:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi!',
+                    text: `Không thể kiểm tra tồn kho: ${error.message}`,
+                    showConfirmButton: true
+                });
+            });
+    }
+
+    function getJwtToken() {
+        const cookies = document.cookie.split(';');
+        console.log('Cookies:', document.cookie);
+        for (let cookie of cookies) {
+            const [name, value] = cookie.trim().split('=');
+            console.log('Checking cookie:', name, value);
+            if (name === 'jwtToken' && value) {
+                console.log('Found jwtToken:', value);
+                return value;
+            }
+        }
+        console.warn('No jwtToken found in cookies');
+        return null;
     }
 </script>
+
 
 </body>
 </html>
