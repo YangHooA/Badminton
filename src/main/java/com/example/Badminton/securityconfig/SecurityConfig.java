@@ -66,9 +66,9 @@ public class SecurityConfig {
                                 "/login/oauth2/code/facebook",
                                 "/error",
                                 "/detail",
+                                "/api/cart/**",
                                 "/api/cart/check-stock" // Chỉ cho phép check-stock công khai
                         ).permitAll()
-                        .requestMatchers("/api/cart/add").authenticated() // Yêu cầu xác thực cho /api/cart/add
                         .requestMatchers("/thanhtoan/payos").authenticated()
                         .requestMatchers("/quanly/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
@@ -85,6 +85,7 @@ public class SecurityConfig {
                                 "/submit-review",
                                 "/get-reviews",
                                 "/check-auth",
+                                "/api/cart/**",
                                 "/detail"
                         )
                 )

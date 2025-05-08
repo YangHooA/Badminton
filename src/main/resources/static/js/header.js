@@ -241,4 +241,6 @@ document.addEventListener("DOMContentLoaded", function () {
         document.getElementById("loginForm").style.display = "block";
         document.getElementById("loginModalLabel").innerText = "Đăng Nhập";
     });
+
+
 });
