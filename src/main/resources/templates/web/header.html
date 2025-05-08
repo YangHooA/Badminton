@@ -1,6 +1,15 @@
 <header th:fragment="header">
     <link rel="stylesheet" th:href="@{/CSS/header.css}">
 
+    <!-- Thêm meta tag CSRF -->
+    <meta name="_csrf" th:content="${_csrf.token}" th:if="${_csrf != null}">
+
+    <!-- Thêm thư viện SweetAlert2 và Toastify -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastify-js/1.11.1/toastify.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastify-js/1.11.1/toastify.min.js"></script>
+
 
     <nav class="navbar navbar-expand-lg bg-body-tertiary fixed-top">
         <div class="container-fluid" style="background-color: #BAEBFF">

@@ -102,6 +102,83 @@ public class GiohangService {
         }
     }
 
+
+    @Transactional
+    public Map<String, Object> updateCartItemQuantity(String email, Integer productId, Integer quantity) {
+        logger.info("Updating cart item: email={}, productId={}, quantity={}", email, productId, quantity);
+        try {
+            if (!checkStock(productId, quantity)) {
+                logger.warn("Insufficient stock for productId: {}", productId);
+                return Map.of("success", false, "message", "Sản phẩm không đủ hàng");
+            }
+
+            Optional<Customer> customerOpt = customerRepository.findByEmail(email);
+            if (!customerOpt.isPresent()) {
+                logger.error("Customer with email {} not found", email);
+                return Map.of("success", false, "message", "Khách hàng không tồn tại");
+            }
+            Customer customer = customerOpt.get();
+
+            Optional<Cart> cartOpt = cartRepository.findByCustomerIdAndStatus(customer.getId(), "ACTIVE");
+            if (!cartOpt.isPresent()) {
+                logger.warn("No active cart found for customer: {}", email);
+                return Map.of("success", false, "message", "Giỏ hàng không tồn tại");
+            }
+            Cart cart = cartOpt.get();
+
+            Optional<CartItem> cartItemOpt = cartItemRepository.findByCartIdAndProductId(cart.getId(), productId);
+            if (!cartItemOpt.isPresent()) {
+                logger.warn("Cart item not found: productId={}", productId);
+                return Map.of("success", false, "message", "Sản phẩm không có trong giỏ hàng");
+            }
+
+            CartItem cartItem = cartItemOpt.get();
+            cartItem.setQuantity(quantity);
+            cartItem.setUpdatedAt(LocalDateTime.now());
+            cartItemRepository.save(cartItem);
+            logger.info("Updated cart item: productId={}, new quantity={}", productId, quantity);
+
+            return Map.of("success", true, "message", "Cập nhật số lượng thành công");
+        } catch (Exception e) {
+            logger.error("Error updating cart item: {}", e.getMessage(), e);
+            return Map.of("success", false, "message", "Lỗi khi cập nhật số lượng: " + e.getMessage());
+        }
+    }
+
+
+    @Transactional
+    public Map<String, Object> removeFromCart(String email, Integer productId) {
+        logger.info("Removing from cart: email={}, productId={}", email, productId);
+        try {
+            Optional<Customer> customerOpt = customerRepository.findByEmail(email);
+            if (!customerOpt.isPresent()) {
+                logger.error("Customer with email {} not found", email);
+                return Map.of("success", false, "message", "Khách hàng không tồn tại");
+            }
+            Customer customer = customerOpt.get();
+
+            Optional<Cart> cartOpt = cartRepository.findByCustomerIdAndStatus(customer.getId(), "ACTIVE");
+            if (!cartOpt.isPresent()) {
+                logger.warn("No active cart found for customer: {}", email);
+                return Map.of("success", false, "message", "Giỏ hàng không tồn tại");
+            }
+            Cart cart = cartOpt.get();
+
+            Optional<CartItem> cartItemOpt = cartItemRepository.findByCartIdAndProductId(cart.getId(), productId);
+            if (!cartItemOpt.isPresent()) {
+                logger.warn("Cart item not found: productId={}", productId);
+                return Map.of("success", false, "message", "Sản phẩm không có trong giỏ hàng");
+            }
+
+            cartItemRepository.delete(cartItemOpt.get());
+            logger.info("Removed cart item: productId={}", productId);
+            return Map.of("success", true, "message", "Xóa sản phẩm khỏi giỏ hàng thành công");
+        } catch (Exception e) {
+            logger.error("Error removing from cart: {}", e.getMessage(), e);
+            return Map.of("success", false, "message", "Lỗi khi xóa sản phẩm: " + e.getMessage());
+        }
+    }
+
     public void saveGuestCart(List<Map<String, Object>> cartItems) {
         logger.info("Saving guest cart: {}", cartItems);
         // Logic lưu giỏ hàng tạm thời vào server (nếu cần)

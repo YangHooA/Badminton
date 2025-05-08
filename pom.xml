@@ -176,6 +176,12 @@
 			<version>4.0.5</version>
 		</dependency>
 
+		<dependency>
+			<groupId>org.thymeleaf.extras</groupId>
+			<artifactId>thymeleaf-extras-springsecurity6</artifactId>
+			<version>3.1.2.RELEASE</version> <!-- Phiên bản mới nhất tương thích với Spring Security 6 -->
+		</dependency>
+
 <!--		<dependency>-->
 <!--			<groupId>io.jsonwebtoken</groupId>-->
 <!--			<artifactId>jjwt-api</artifactId>-->

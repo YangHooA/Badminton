@@ -43,6 +43,13 @@ public class Product {
     @JoinColumn(name = "weight_id")
     private Weight weight;
 
+    public String getImageUrl() {
+        if (images != null && !images.isEmpty()) {
+            return images.get(0).getImageUrl(); // Lấy imageUrl từ ảnh đầu tiên
+        }
+        return null;
+    }
+
     // Getters và Setters
     public Integer getId() {
         return id;
