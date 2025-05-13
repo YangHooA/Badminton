@@ -183,4 +183,63 @@ public class GiohangService {
         logger.info("Saving guest cart: {}", cartItems);
         // Logic lưu giỏ hàng tạm thời vào server (nếu cần)
     }
+
+    @Transactional
+    public void syncGuestCart(String email, List<Map<String, Object>> guestCart) {
+        logger.info("Syncing guest cart for email: {}", email);
+        if (guestCart == null || guestCart.isEmpty()) {
+            logger.info("Guest cart is empty, nothing to sync");
+            return;
+        }
+
+        Optional<Customer> customerOpt = customerRepository.findByEmail(email);
+        if (!customerOpt.isPresent()) {
+            logger.error("Customer with email {} not found", email);
+            throw new RuntimeException("Khách hàng không tồn tại");
+        }
+        Customer customer = customerOpt.get();
+
+        Optional<Cart> cartOpt = cartRepository.findByCustomerIdAndStatus(customer.getId(), "ACTIVE");
+        Cart cart;
+        if (cartOpt.isPresent()) {
+            cart = cartOpt.get();
+        } else {
+            cart = new Cart();
+            cart.setCustomer(customer);
+            cart.setStatus("ACTIVE");
+            cart.setCreatedAt(LocalDateTime.now());
+            cart = cartRepository.save(cart);
+        }
+
+        for (Map<String, Object> item : guestCart) {
+            Integer productId = (Integer) item.get("productId");
+            Integer quantity = (Integer) item.get("quantity");
+
+            if (productId == null || quantity == null || quantity <= 0) {
+                logger.warn("Invalid guest cart item: productId={}, quantity={}", productId, quantity);
+                continue;
+            }
+
+            if (!checkStock(productId, quantity)) {
+                logger.warn("Insufficient stock for productId: {}", productId);
+                continue;
+            }
+
+            Optional<CartItem> existingItemOpt = cartItemRepository.findByCartIdAndProductId(cart.getId(), productId);
+            if (existingItemOpt.isPresent()) {
+                CartItem existingItem = existingItemOpt.get();
+                existingItem.setQuantity(existingItem.getQuantity() + quantity);
+                cartItemRepository.save(existingItem);
+                logger.info("Updated cart item: productId={}, new quantity={}", productId, existingItem.getQuantity());
+            } else {
+                CartItem cartItem = new CartItem();
+                cartItem.setCart(cart);
+                cartItem.setProductId(productId);
+                cartItem.setQuantity(quantity);
+                cartItem.setCreatedAt(LocalDateTime.now());
+                cartItemRepository.save(cartItem);
+                logger.info("Added new cart item: productId={}, quantity={}", productId, quantity);
+            }
+        }
+    }
 }

@@ -13,10 +13,7 @@ import org.springframework.security.oauth2.client.authentication.OAuth2Authentic
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
@@ -152,6 +149,23 @@ public class HomeController {
             logger.error("Error in check-auth: {}", e.getMessage(), e);
             response.put("authenticated", false);
             response.put("error", "Lỗi khi kiểm tra trạng thái đăng nhập: " + e.getMessage());
+            return response;
+        }
+    }
+
+    @PostMapping("/api/validate-token")
+    @ResponseBody
+    public Map<String, Object> validateToken(@RequestBody Map<String, String> request) {
+        Map<String, Object> response = new HashMap<>();
+        String token = request.get("token");
+        try {
+            String email = jwtUtil.extractEmail(token);
+            boolean isValid = jwtUtil.validateToken(token, email);
+            response.put("valid", isValid);
+            return response;
+        } catch (Exception e) {
+            response.put("valid", false);
+            response.put("error", "Invalid token: " + e.getMessage());
             return response;
         }
     }

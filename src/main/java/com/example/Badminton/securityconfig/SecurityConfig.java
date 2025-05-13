@@ -67,6 +67,7 @@ public class SecurityConfig {
                                 "/error",
                                 "/detail",
                                 "/api/cart/**",
+                                "/api/validate-token",
                                 "/api/cart/check-stock" // Chỉ cho phép check-stock công khai
                         ).permitAll()
                         .requestMatchers("/thanhtoan/payos").authenticated()
@@ -86,7 +87,9 @@ public class SecurityConfig {
                                 "/get-reviews",
                                 "/check-auth",
                                 "/api/cart/**",
-                                "/detail"
+                                "/detail",
+                                "/api/validate-token"
+
                         )
                 )
                 .oauth2Login(oauth2 -> oauth2
