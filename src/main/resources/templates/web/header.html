@@ -331,39 +331,37 @@
                             <p class="mt-3 text-muted">Bạn chưa có tài khoản? <a href="javascript:void(0);" id="toRegisterFromLogin" class="text-danger fw-bold">Tạo ngay</a></p>
                         </div>
                         <!-- Tóm tắt đơn hàng bên phải -->
+                        <!-- Tóm tắt đơn hàng bên phải -->
                         <div class="col-md-4 bg-dark text-white p-4 rounded-4">
                             <h5 class="mb-4">Đơn hàng của bạn</h5>
                             <div class="d-flex justify-content-between">
-                                <span>Sản phẩm <span class="badge bg-orange rounded-pill">1</span></span>
+                                <span>Sản phẩm <span class="badge bg-orange rounded-pill" id="itemCount">0</span></span>
                             </div>
                             <hr class="bg-light">
-                            <div class="mb-3">
-                                <div class="fw-bold">Vợt cầu lông Yonex Nanoflare 700 Tour</div>
-                                <div class="text-white-50 small">1 x 2.400.000đ</div>
-                                <div class="text-white-50 small">Chọn: Phiên bản: Công ty</div>
-                            <div class="text-white-50 small">Chọn: Màu sắc: Xám</div>
-                        </div>
-                        <hr class="bg-light">
-                        <div class="d-flex justify-content-between fw-bold fs-5">
-                            <span>Total</span>
-                            <span class="text-warning">2.400.000đ</span>
-                        </div>
-                        <div class="d-grid mt-4">
-                            <div class="d-grid mt-4 mb-3">
-                                <button class="btn btn-orange">
-                                    🛒 Đặt hàng
-                                </button>
+                            <div id="orderItems">
+                                <!-- Danh sách sản phẩm sẽ được thêm động bằng JavaScript -->
                             </div>
-                            <div class="text-white">
-                                <label class="form-label fw-bold mb-2">Phương thức thanh toán:</label>
-                                <div class="d-flex gap-2">
-                                    <button id="btnCOD" class="btn btn-payment active">COD (Khi nhận hàng)</button>
-                                    <button id="btnOnline" class="btn btn-payment">Online (Chuyển khoản QR)</button>
+                            <hr class="bg-light">
+                            <div class="d-flex justify-content-between fw-bold fs-5">
+                                <span>Tổng cộng</span>
+                                <span class="text-warning" id="orderTotal">0đ</span>
+                            </div>
+                            <div class="d-grid mt-4">
+                                <div class="d-grid mt-4 mb-3">
+                                    <button class="btn btn-orange" id="placeOrderBtn">
+                                        🛒 Đặt hàng
+                                    </button>
+                                </div>
+                                <div class="text-white">
+                                    <label class="form-label fw-bold mb-2">Phương thức thanh toán:</label>
+                                    <div class="d-flex gap-2">
+                                        <button id="btnCOD" class="btn btn-payment active">COD (Khi nhận hàng)</button>
+                                        <button id="btnOnline" class="btn btn-payment">Online (Chuyển khoản QR)</button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
             </div>
         </div>
     </div>

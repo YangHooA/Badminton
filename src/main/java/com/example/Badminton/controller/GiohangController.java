@@ -40,7 +40,7 @@ public class GiohangController {
     private CustomerRepository customerRepository;
 
     @PostMapping("/check-stock")
-    public ResponseEntity<?> checkStock(@RequestBody CartItemRequest request) {
+    public ResponseEntity<?> checkStock(@RequestBody OrderRequest.CartItemRequest request) {
         try {
             boolean isAvailable = giohangService.checkStock(request.getProductId(), request.getQuantity());
             return ResponseEntity.ok().body(Map.of("success", true, "isAvailable", isAvailable));
@@ -50,7 +50,7 @@ public class GiohangController {
     }
 
     @PostMapping("/add")
-    public ResponseEntity<?> addToCart(@RequestBody CartItemRequest request) {
+    public ResponseEntity<?> addToCart(@RequestBody OrderRequest.CartItemRequest request) {
         if (request.getProductId() == null || request.getProductId() <= 0) {
             return ResponseEntity.badRequest().body(Map.of("success", false, "message", "ID sản phẩm không hợp lệ"));
         }
@@ -212,35 +212,105 @@ public class GiohangController {
         }
     }
 
+    @PostMapping("/place-order")
+    public ResponseEntity<?> placeOrder(@RequestBody OrderRequest request, Authentication authentication) {
+        try {
+            String email = authentication != null ? getEmailFromAuthentication(authentication) : null;
+            Map<String, Object> result = giohangService.placeOrder(
+                    email,
+                    request.getGuestName(),
+                    request.getGuestEmail(),
+                    request.getGuestPhone(),
+                    request.getGuestAddress(),
+                    request.getPaymentMethod()
+            );
+            return (boolean) result.get("success") ?
+                    ResponseEntity.ok().body(result) :
+                    ResponseEntity.badRequest().body(result);
+        } catch (Exception e) {
+            logger.error("Error placing order: {}", e.getMessage(), e);
+            return ResponseEntity.badRequest().body(Map.of("success", false, "message", "Lỗi khi đặt hàng: " + e.getMessage()));
+        }
+    }
+
+
 
 }
 
-class CartItemRequest {
-    private Integer productId;
-    private Integer quantity;
-    private String email;
+class OrderRequest {
+    private String guestName;
+    private String guestEmail;
+    private String guestPhone;
+    private String guestAddress;
+    private String paymentMethod;
 
-    public Integer getProductId() {
-        return productId;
+    public String getGuestName() {
+        return guestName;
     }
 
-    public void setProductId(Integer productId) {
-        this.productId = productId;
+    public void setGuestName(String guestName) {
+        this.guestName = guestName;
     }
 
-    public Integer getQuantity() {
-        return quantity;
+    public String getGuestEmail() {
+        return guestEmail;
     }
 
-    public void setQuantity(Integer quantity) {
-        this.quantity = quantity;
+    public void setGuestEmail(String guestEmail) {
+        this.guestEmail = guestEmail;
     }
 
-    public String getEmail() {
-        return email;
+    public String getGuestPhone() {
+        return guestPhone;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    public void setGuestPhone(String guestPhone) {
+        this.guestPhone = guestPhone;
+    }
+
+    public String getGuestAddress() {
+        return guestAddress;
+    }
+
+    public void setGuestAddress(String guestAddress) {
+        this.guestAddress = guestAddress;
+    }
+
+    public String getPaymentMethod() {
+        return paymentMethod;
+    }
+
+    public void setPaymentMethod(String paymentMethod) {
+        this.paymentMethod = paymentMethod;
+    }
+
+    class CartItemRequest {
+        private Integer productId;
+        private Integer quantity;
+        private String email;
+
+        public Integer getProductId() {
+            return productId;
+        }
+
+        public void setProductId(Integer productId) {
+            this.productId = productId;
+        }
+
+        public Integer getQuantity() {
+            return quantity;
+        }
+
+        public void setQuantity(Integer quantity) {
+            this.quantity = quantity;
+        }
+
+        public String getEmail() {
+            return email;
+        }
+
+        public void setEmail(String email) {
+            this.email = email;
+        }
     }
 }

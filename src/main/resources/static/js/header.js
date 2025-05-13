@@ -1,8 +1,9 @@
 document.addEventListener("DOMContentLoaded", function () {
+    // Các biến và hàm tiện ích
     const openBtn = document.getElementById('openCartSidebar');
     const closeBtn = document.getElementById('closeCartSidebar');
     const cartSidebar = document.getElementById('cartSidebar');
-    const cartBody = cartSidebar.querySelector('.cart-body');
+    const cartBody = cartSidebar?.querySelector('.cart-body');
 
     function getCsrfToken() {
         const meta = document.querySelector('meta[name="_csrf"]');
@@ -14,11 +15,15 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function showLoading() {
-        cartBody.innerHTML = '<div class="loading text-center">Đang tải giỏ hàng...</div>';
+        if (cartBody) {
+            cartBody.innerHTML = '<div class="loading text-center">Đang tải giỏ hàng...</div>';
+        }
     }
 
     function showEmptyCart() {
-        cartBody.innerHTML = '<div class="empty-cart text-center">Giỏ hàng của bạn đang trống</div>';
+        if (cartBody) {
+            cartBody.innerHTML = '<div class="empty-cart text-center">Giỏ hàng của bạn đang trống</div>';
+        }
     }
 
     function saveGuestCart(items) {
@@ -83,6 +88,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
+    // Hàm kiểm tra token
     async function validateToken(token) {
         try {
             const response = await fetch('/api/validate-token', {
@@ -102,6 +108,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
+    // Hàm lấy thông tin xác thực
     async function getAuthInfo() {
         try {
             const response = await fetch('/check-auth', { credentials: 'include' });
@@ -112,7 +119,7 @@ document.addEventListener("DOMContentLoaded", function () {
             if (data.authenticated && data.user?.email && data.token) {
                 const isTokenValid = await validateToken(data.token);
                 if (isTokenValid) {
-                    return { email: data.user.email, token: data.token };
+                    return { email: data.user.email, token: data.token, name: data.user.name };
                 } else {
                     Toastify({
                         text: 'Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.',
@@ -134,6 +141,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
+    // Hàm cập nhật giỏ hàng
     async function updateCartItem(productId, quantity) {
         const authInfo = await getAuthInfo();
         if (!authInfo) {
@@ -193,6 +201,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
+    // Hàm xóa sản phẩm khỏi giỏ hàng
     async function removeCartItem(productId, cartItemElement) {
         const authInfo = await getAuthInfo();
         if (!authInfo) {
@@ -241,7 +250,6 @@ document.addEventListener("DOMContentLoaded", function () {
                         cartItemElement.remove();
                         updateTotal(cartSidebar);
                         updateBadge(data.itemCount || 0);
-                        // Cập nhật modal
                         const currentItems = await fetchCartItems(authInfo.token);
                         syncModalCartItems(currentItems);
                         Toastify({
@@ -283,6 +291,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
+    // Hàm lấy danh sách sản phẩm trong giỏ hàng
     async function fetchCartItems(token) {
         try {
             const response = await fetch('/api/cart/items', {
@@ -301,6 +310,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
+    // Hàm hiển thị sản phẩm trong giỏ hàng
     function displayCartItems(items, container) {
         const cartItemsContainer = document.createElement('div');
         cartItemsContainer.className = 'cart-items';
@@ -357,6 +367,7 @@ document.addEventListener("DOMContentLoaded", function () {
         updateBadge(items.length);
     }
 
+    // Hàm đồng bộ giỏ hàng trong modal
     function syncModalCartItems(items) {
         const modalCartBody = document.querySelector('#cartModal .modal-body .col-md-8');
         if (!modalCartBody) return;
@@ -402,6 +413,7 @@ document.addEventListener("DOMContentLoaded", function () {
         updateModalSummary(items);
     }
 
+    // Hàm cập nhật tóm tắt đơn hàng trong modal
     function updateModalSummary(items) {
         const subtotalEl = document.querySelector('#cartModal #subtotal');
         const grandTotalEl = document.querySelector('#cartModal #grandTotalView');
@@ -416,6 +428,7 @@ document.addEventListener("DOMContentLoaded", function () {
         grandTotalEl.textContent = formatCurrency(grandTotal);
     }
 
+    // Hàm đồng bộ giỏ hàng khách với tài khoản
     async function syncGuestCart(email, token) {
         const guestCart = loadGuestCart();
         if (guestCart.length === 0) return;
@@ -490,6 +503,268 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
+    // Hàm lấy danh sách tỉnh/thành phố từ API
+    async function fetchProvinces() {
+        try {
+            const response = await fetch('https://provinces.open-api.vn/api/p/');
+            if (!response.ok) {
+                throw new Error('Không thể lấy danh sách tỉnh/thành phố');
+            }
+            const provinces = await response.json();
+            populateProvinces(provinces);
+        } catch (error) {
+            console.error('Lỗi khi lấy danh sách tỉnh/thành phố:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Lỗi',
+                text: 'Không thể tải danh sách tỉnh/thành phố.',
+            });
+        }
+    }
+
+    // Hàm điền danh sách tỉnh/thành phố vào select
+    function populateProvinces(provinces) {
+        const provinceSelect = document.getElementById('provinceSelect');
+        if (!provinceSelect) return;
+
+        provinceSelect.innerHTML = '<option value="">Chọn tỉnh/thành</option>';
+        provinces.forEach(province => {
+            const option = document.createElement('option');
+            option.value = province.code;
+            option.textContent = province.name;
+            provinceSelect.appendChild(option);
+        });
+    }
+
+    // Hàm lấy danh sách quận/huyện từ API
+    async function fetchDistricts(provinceCode) {
+        try {
+            const response = await fetch(`https://provinces.open-api.vn/api/p/${provinceCode}?depth=2`);
+            if (!response.ok) {
+                throw new Error('Không thể lấy danh sách quận/huyện');
+            }
+            const data = await response.json();
+            populateDistricts(data.districts);
+        } catch (error) {
+            console.error('Lỗi khi lấy danh sách quận/huyện:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Lỗi',
+                text: 'Không thể tải danh sách quận/huyện.',
+            });
+        }
+    }
+
+    // Hàm điền danh sách quận/huyện vào select
+    function populateDistricts(districts) {
+        const districtSelect = document.getElementById('districtSelect');
+        if (!districtSelect) return;
+
+        districtSelect.innerHTML = '<option value="">Chọn quận/huyện</option>';
+        districtSelect.disabled = false;
+
+        districts.forEach(district => {
+            const option = document.createElement('option');
+            option.value = district.code;
+            option.textContent = district.name;
+            districtSelect.appendChild(option);
+        });
+    }
+
+    // Xử lý sự kiện khi chọn tỉnh/thành phố
+    const provinceSelect = document.getElementById('provinceSelect');
+    if (provinceSelect) {
+        provinceSelect.addEventListener('change', function () {
+            const provinceCode = this.value;
+            const districtSelect = document.getElementById('districtSelect');
+
+            if (provinceCode) {
+                fetchDistricts(provinceCode);
+            } else {
+                districtSelect.innerHTML = '<option value="">Chọn quận/huyện</option>';
+                districtSelect.disabled = true;
+            }
+        });
+    }
+
+    // Gọi hàm lấy danh sách tỉnh/thành phố khi modal thanh toán mở
+    const checkoutModal = document.getElementById('checkoutModal');
+    if (checkoutModal) {
+        checkoutModal.addEventListener('shown.bs.modal', function () {
+            fetchProvinces();
+        });
+    }
+
+    // Hàm lấy danh sách sản phẩm trong giỏ hàng và hiển thị trong modal thanh toán
+    function loadOrderItems() {
+        fetch('/api/cart/items', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': getJwtToken() ? `Bearer ${getJwtToken()}` : ''
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const orderItemsContainer = document.getElementById('orderItems');
+                    const itemCountElement = document.getElementById('itemCount');
+                    const orderTotalElement = document.getElementById('orderTotal');
+                    orderItemsContainer.innerHTML = '';
+
+                    let totalPrice = 0;
+                    let itemCount = data.items.length;
+
+                    if (itemCount === 0) {
+                        orderItemsContainer.innerHTML = '<p class="text-white-50">Giỏ hàng của bạn đang trống.</p>';
+                        itemCountElement.textContent = '0';
+                        orderTotalElement.textContent = '0đ';
+                        return;
+                    }
+
+                    data.items.forEach(item => {
+                        const itemTotal = item.price * item.quantity;
+                        totalPrice += itemTotal;
+
+                        const itemHtml = `
+                            <div class="mb-3">
+                                <div class="fw-bold">${item.name}</div>
+                                <div class="text-white-50 small">${item.quantity} x ${formatCurrency(item.price)}</div>
+                                <div class="text-white-50 small">${item.description ? `Chọn: ${item.description}` : ''}</div>
+                            </div>
+                        `;
+                        orderItemsContainer.innerHTML += itemHtml;
+                    });
+
+                    itemCountElement.textContent = itemCount;
+                    orderTotalElement.textContent = formatCurrency(totalPrice);
+                } else {
+                    console.error('Lỗi khi lấy giỏ hàng:', data.message);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Lỗi',
+                        text: data.message || 'Không thể tải giỏ hàng.',
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Lỗi khi gọi API giỏ hàng:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi',
+                    text: 'Có lỗi xảy ra khi tải giỏ hàng.',
+                });
+            });
+    }
+
+    // Hàm lấy JWT token từ cookie
+    function getJwtToken() {
+        const cookies = document.cookie.split(';');
+        for (let cookie of cookies) {
+            const [name, value] = cookie.trim().split('=');
+            if (name === 'jwtToken') {
+                return value;
+            }
+        }
+        return null;
+    }
+
+    // Gọi loadOrderItems khi modal thanh toán mở
+    if (checkoutModal) {
+        checkoutModal.addEventListener('shown.bs.modal', function () {
+            loadOrderItems();
+        });
+    }
+
+    // Xử lý nút "Đặt hàng"
+    const placeOrderBtn = document.getElementById('placeOrderBtn');
+    if (placeOrderBtn) {
+        placeOrderBtn.addEventListener('click', async function () {
+            const form = document.querySelector('#checkoutModal form');
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+
+            const firstName = form.querySelector('input[placeholder="Nhập tên của bạn"]').value;
+            const lastName = form.querySelector('input[placeholder="Nhập họ của bạn"]').value;
+            const guestName = `${firstName} ${lastName}`.trim();
+            const guestEmail = form.querySelector('input[placeholder="Nhập Email"]').value;
+            const guestPhone = form.querySelector('input[placeholder="Nhập số điện thoại"]').value;
+            const province = document.getElementById('provinceSelect').selectedOptions[0]?.text;
+            const district = document.getElementById('districtSelect').selectedOptions[0]?.text;
+            const street = form.querySelector('input[placeholder="House number and street name"]').value;
+            const guestAddress = `${street}, ${district}, ${province}`.trim();
+            const paymentMethod = document.getElementById('btnCOD').classList.contains('active') ? 'COD' : 'ONLINE';
+
+            try {
+                const response = await fetch('/api/cart/place-order', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': getCsrfToken(),
+                        'Authorization': getJwtToken() ? `Bearer ${getJwtToken()}` : ''
+                    },
+                    body: JSON.stringify({
+                        guestName,
+                        guestEmail,
+                        guestPhone,
+                        guestAddress,
+                        paymentMethod
+                    }),
+                    credentials: 'include'
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Thành công',
+                        text: `Đơn hàng của bạn đã được đặt! Mã đơn hàng: ${data.orderId}`,
+                    }).then(() => {
+                        bootstrap.Modal.getInstance(document.getElementById('checkoutModal')).hide();
+                        window.location.href = '/';
+                    });
+                    // Cập nhật badge giỏ hàng
+                    updateBadge(0);
+                    // Xóa giỏ hàng hiển thị
+                    if (cartBody) {
+                        showEmptyCart();
+                    }
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Lỗi',
+                        text: data.message || 'Không thể đặt hàng. Vui lòng thử lại.',
+                    });
+                }
+            } catch (error) {
+                console.error('Lỗi khi đặt hàng:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi',
+                    text: 'Có lỗi xảy ra khi đặt hàng. Vui lòng thử lại.',
+                });
+            }
+        });
+    }
+
+    // Xử lý chuyển đổi phương thức thanh toán
+    const btnCOD = document.getElementById('btnCOD');
+    const btnOnline = document.getElementById('btnOnline');
+
+    if (btnCOD && btnOnline) {
+        btnCOD.addEventListener('click', function () {
+            btnCOD.classList.add('active');
+            btnOnline.classList.remove('active');
+        });
+
+        btnOnline.addEventListener('click', function () {
+            btnOnline.classList.add('active');
+            btnCOD.classList.remove('active');
+        });
+    }
+
     // Kiểm tra trạng thái đăng nhập và đồng bộ giỏ hàng
     fetch('/check-auth', {
         credentials: 'include'
@@ -505,10 +780,13 @@ document.addEventListener("DOMContentLoaded", function () {
         })
         .catch(error => console.error('Lỗi khi kiểm tra đăng nhập:', error));
 
+    // Hàm cập nhật giao diện xác thực
     function updateAuthUI(data) {
         const loginNavItem = document.getElementById('loginNavItem');
         const loginLink = document.getElementById('loginLink');
-        const navbarNav = loginNavItem.parentElement;
+        const navbarNav = loginNavItem?.parentElement;
+
+        if (!navbarNav) return;
 
         const existingLogout = navbarNav.querySelector('.nav-item.logout');
         if (existingLogout) {
@@ -535,6 +813,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
+    // Hàm xử lý đăng xuất
     function handleLogout(event) {
         event.preventDefault();
 
