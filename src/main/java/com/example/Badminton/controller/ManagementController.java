@@ -102,9 +102,19 @@ public class ManagementController {
 
     @GetMapping("/api/products")
     @ResponseBody
-    public ResponseEntity<List<ProductDTO>> getAllProducts() {
-        List<ProductDTO> products = productService.getAllProducts();
-        return ResponseEntity.ok(products);
+    public ResponseEntity<Page<ProductDTO>> getPagedProducts(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) String category) {
+        try {
+            Pageable pageable = PageRequest.of(page, size);
+            Page<ProductDTO> productPage = productService.getPagedProducts(pageable, keyword, category);
+            return ResponseEntity.ok(productPage);
+        } catch (Exception e) {
+            logger.error("Lỗi khi tải danh sách sản phẩm: {}", e.getMessage(), e);
+            return ResponseEntity.status(500).body(null);
+        }
     }
 
     @GetMapping("/api/orders")

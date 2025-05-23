@@ -108,6 +108,49 @@ input[type="range"]::-webkit-slider-thumb {
     background: #4D9AB4;
     color: white;
 }
+/* Kiểu dáng cho container gợi ý */
+#searchSuggestions {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    margin-top: 5px;
+    transition: opacity 0.2s ease-in-out;
+}
+
+#searchSuggestions .list-group-item {
+    padding: 10px;
+    border: none;
+    border-bottom: 1px solid #eee;
+    transition: background-color 0.2s;
+}
+
+#searchSuggestions .list-group-item:hover {
+    background-color: #f8f9fa;
+}
+
+#searchSuggestions .list-group-item:last-child {
+    border-bottom: none;
+}
+
+#searchSuggestions img {
+    border-radius: 4px;
+}
+
+/* Đảm bảo ô tìm kiếm không bị che */
+.input-group {
+    position: relative;
+}
+
+/* Hiệu ứng hiển thị mượt mà */
+#searchSuggestions {
+    opacity: 0;
+}
+
+#searchSuggestions[style*="display: block"] {
+    opacity: 1;
+}
+
 
 
 

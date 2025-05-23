@@ -128,11 +128,16 @@
             <h2 class="fw-bold" style="color: #4D9AB4;">Bộ lọc</h2>
 
             <!-- bộ lọc -->
-            <div class="mb-3">
-                <label class="fw-bold text-orange">Tìm kiếm</label>
+            <!-- Bộ lọc -->
+            <div class="mb-3 position-relative">
+                <label class="fw-bold text-orange" style="color: #4D9AB4;">Tìm kiếm</label>
                 <div class="input-group">
-                    <input type="text" class="form-control" placeholder="Nhập từ khóa">
-                    <button class="btn btn-orange"><i class="bi bi-search"></i></button>
+                    <input type="text" class="form-control" id="searchInput" placeholder="Nhập từ khóa" autocomplete="off">
+                    <button class="btn btn-orange" id="searchButton"><i class="bi bi-search"></i></button>
+                </div>
+                <!-- Container cho gợi ý đề xuất -->
+                <div id="searchSuggestions" class="list-group position-absolute w-100" style="z-index: 1000; max-height: 300px; overflow-y: auto; display: none;">
+                    <!-- Gợi ý sẽ được thêm động bằng JavaScript -->
                 </div>
             </div>
 

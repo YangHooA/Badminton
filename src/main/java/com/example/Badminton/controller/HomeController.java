@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Controller;
@@ -169,4 +170,24 @@ public class HomeController {
             return response;
         }
     }
+
+//    @GetMapping("/api/products/search")
+//    @ResponseBody
+//    public ResponseEntity<List<ProductDTO>> searchProducts(@RequestParam("query") String query) {
+//        try {
+//            List<ProductDTO> products = productService.searchProducts(query);
+//            return ResponseEntity.ok(products);
+//        } catch (Exception e) {
+//            logger.error("Error searching products: {}", e.getMessage(), e);
+//            return ResponseEntity.badRequest().body(null);
+//        }
+//    }
+//
+//    @GetMapping("/search")
+//    public String searchResults(@RequestParam("query") String query, Model model) {
+//        List<ProductDTO> products = productService.searchProducts(query);
+//        model.addAttribute("products", products);
+//        model.addAttribute("searchQuery", query);
+//        return "search-results"; // Trang hiển thị kết quả tìm kiếm
+//    }
 }

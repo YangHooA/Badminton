@@ -68,6 +68,9 @@ public class SecurityConfig {
                                 "/detail",
                                 "/api/cart/**",
                                 "/api/validate-token",
+                                "/api/products/search",
+                                "/api/reports",
+                                "/search",
                                 "/api/cart/check-stock" // Chỉ cho phép check-stock công khai
                         ).permitAll()
                         .requestMatchers("/thanhtoan/payos").authenticated()

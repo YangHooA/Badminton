@@ -176,11 +176,24 @@
 			<version>4.0.5</version>
 		</dependency>
 
+
 		<dependency>
-			<groupId>org.thymeleaf.extras</groupId>
-			<artifactId>thymeleaf-extras-springsecurity6</artifactId>
-			<version>3.1.2.RELEASE</version> <!-- Phiên bản mới nhất tương thích với Spring Security 6 -->
+			<groupId>vn.payos</groupId>
+			<artifactId>payos-java</artifactId>
+			<version>1.0.1</version>
 		</dependency>
+
+		<dependency>
+			<groupId>com.google.code.gson</groupId>
+			<artifactId>gson</artifactId>
+			<version>2.10.1</version>
+		</dependency>
+
+<!--		<dependency>-->
+<!--			<groupId>org.thymeleaf.extras</groupId>-->
+<!--			<artifactId>thymeleaf-extras-springsecurity6</artifactId>-->
+<!--			<version>3.1.2.RELEASE</version> &lt;!&ndash; Phiên bản mới nhất tương thích với Spring Security 6 &ndash;&gt;-->
+<!--		</dependency>-->
 
 <!--		<dependency>-->
 <!--			<groupId>io.jsonwebtoken</groupId>-->

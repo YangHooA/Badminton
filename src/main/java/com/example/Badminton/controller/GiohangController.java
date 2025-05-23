@@ -284,7 +284,7 @@ class OrderRequest {
         this.paymentMethod = paymentMethod;
     }
 
-    class CartItemRequest {
+    static  class CartItemRequest {
         private Integer productId;
         private Integer quantity;
         private String email;

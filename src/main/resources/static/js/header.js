@@ -678,8 +678,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Xử lý nút "Đặt hàng"
     const placeOrderBtn = document.getElementById('placeOrderBtn');
+// Trong phần xử lý nút "Đặt hàng"
     if (placeOrderBtn) {
-        placeOrderBtn.addEventListener('click', async function () {
+        placeOrderBtn.addEventListener('click', async function (e) {
+            e.preventDefault(); // Ngăn chặn hành vi mặc định
+
             const form = document.querySelector('#checkoutModal form');
             if (!form.checkValidity()) {
                 form.reportValidity();
@@ -698,45 +701,107 @@ document.addEventListener("DOMContentLoaded", function () {
             const paymentMethod = document.getElementById('btnCOD').classList.contains('active') ? 'COD' : 'ONLINE';
 
             try {
-                const response = await fetch('/api/cart/place-order', {
-                    method: 'POST',
+                // Lấy danh sách sản phẩm trong giỏ hàng
+                const cartResponse = await fetch('/api/cart/items', {
+                    method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': getCsrfToken(),
                         'Authorization': getJwtToken() ? `Bearer ${getJwtToken()}` : ''
                     },
-                    body: JSON.stringify({
-                        guestName,
-                        guestEmail,
-                        guestPhone,
-                        guestAddress,
-                        paymentMethod
-                    }),
                     credentials: 'include'
                 });
-
-                const data = await response.json();
-                if (data.success) {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Thành công',
-                        text: `Đơn hàng của bạn đã được đặt! Mã đơn hàng: ${data.orderId}`,
-                    }).then(() => {
-                        bootstrap.Modal.getInstance(document.getElementById('checkoutModal')).hide();
-                        window.location.href = '/';
-                    });
-                    // Cập nhật badge giỏ hàng
-                    updateBadge(0);
-                    // Xóa giỏ hàng hiển thị
-                    if (cartBody) {
-                        showEmptyCart();
-                    }
-                } else {
+                const cartData = await cartResponse.json();
+                if (!cartData.success || cartData.items.length === 0) {
                     Swal.fire({
                         icon: 'error',
                         title: 'Lỗi',
-                        text: data.message || 'Không thể đặt hàng. Vui lòng thử lại.',
+                        text: 'Giỏ hàng rỗng hoặc không thể tải giỏ hàng.',
                     });
+                    return;
+                }
+
+                const items = cartData.items.map(item => ({
+                    productId: item.productId,
+                    quantity: item.quantity,
+                    price: item.price,
+                    donViTinhId: 1 // Giả sử donViTinhId mặc định là 1, cần điều chỉnh nếu có bảng đơn vị tính
+                }));
+
+                const totalAmount = cartData.items.reduce((total, item) => total + (item.price * item.quantity), 0);
+
+                const orderData = {
+                    customerName: guestName,
+                    customerPhone: guestPhone,
+                    customerAddress: guestAddress,
+                    totalAmount: totalAmount,
+                    items: items,
+                    paymentMethod: paymentMethod
+                };
+
+                if (paymentMethod === 'ONLINE') {
+                    // Gọi API PayOS để tạo link thanh toán
+                    const payOSResponse = await fetch('/thanhtoan/payos', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': getCsrfToken(),
+                            'Authorization': getJwtToken() ? `Bearer ${getJwtToken()}` : ''
+                        },
+                        body: JSON.stringify(orderData),
+                        credentials: 'include'
+                    });
+
+                    const payOSData = await payOSResponse.json();
+                    if (payOSData.success) {
+                        // Chuyển hướng đến link thanh toán PayOS
+                        window.location.href = payOSData.checkoutUrl;
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Lỗi',
+                            text: payOSData.message || 'Không thể tạo link thanh toán.',
+                        });
+                    }
+                } else {
+                    // Xử lý đặt hàng COD
+                    const response = await fetch('/api/cart/place-order', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': getCsrfToken(),
+                            'Authorization': getJwtToken() ? `Bearer ${getJwtToken()}` : ''
+                        },
+                        body: JSON.stringify({
+                            guestName,
+                            guestEmail,
+                            guestPhone,
+                            guestAddress,
+                            paymentMethod
+                        }),
+                        credentials: 'include'
+                    });
+
+                    const data = await response.json();
+                    if (data.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Thành công',
+                            text: `Đơn hàng của bạn đã được đặt! Mã đơn hàng: ${data.orderId}`,
+                        }).then(() => {
+                            bootstrap.Modal.getInstance(document.getElementById('checkoutModal')).hide();
+                            window.location.href = '/';
+                        });
+                        updateBadge(0);
+                        if (cartBody) {
+                            showEmptyCart();
+                        }
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Lỗi',
+                            text: data.message || 'Không thể đặt hàng. Vui lòng thử lại.',
+                        });
+                    }
                 }
             } catch (error) {
                 console.error('Lỗi khi đặt hàng:', error);
@@ -748,7 +813,6 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         });
     }
-
     // Xử lý chuyển đổi phương thức thanh toán
     const btnCOD = document.getElementById('btnCOD');
     const btnOnline = document.getElementById('btnOnline');

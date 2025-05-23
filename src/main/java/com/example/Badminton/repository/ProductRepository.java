@@ -1,12 +1,13 @@
 package com.example.Badminton.repository;
 
-import com.example.Badminton.entity.Customer;
 import com.example.Badminton.entity.Product;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface ProductRepository extends JpaRepository<Product, Integer> {
 
@@ -18,4 +19,17 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
             "LEFT JOIN FETCH p.weight")
     List<Product> findAllWithAllDetails();
 
+    Page<Product> findByNameContainingIgnoreCase(@Param("name") String name, Pageable pageable);
+
+    @Query("SELECT p FROM Product p WHERE p.type.name = :typeName")
+    Page<Product> findByTypeName(@Param("typeName") String typeName, Pageable pageable);
+
+    @Query("SELECT p FROM Product p WHERE p.name LIKE %:name% AND p.type.name = :typeName")
+    Page<Product> findByNameContainingIgnoreCaseAndTypeName(
+            @Param("name") String name,
+            @Param("typeName") String typeName,
+            Pageable pageable);
+
+    @Query("SELECT p FROM Product p WHERE p.name LIKE %:query%")
+    List<Product> searchByName(@Param("query") String query);
 }
